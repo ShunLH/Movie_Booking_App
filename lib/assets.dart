@@ -149,4 +149,4 @@ const String movie2 = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRij
 const String movie3 = "https://assets-in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC:w-400.0,h-660.0,cm-pad_resize,bg-000000,fo-top:oi-discovery-catalog@@icons@@like_202006280402.png,ox-24,oy-617,ow-29:q-80/et00302403-jdslucgrla-portrait.jpg";
 const String movie4 = "https://www.scrolldroll.com/wp-content/uploads/2022/04/Firestarter-Hollywood-Movies-Releasing-in-May-2022.jpg";
 
-const String cast_img = "https://www.musicmundial.com/en/wp-content/uploads/2022/05/EXOs-D.O-what-he-would-have-done-instead-of-sing.jpg";
+const String castImg = "https://www.musicmundial.com/en/wp-content/uploads/2022/05/EXOs-D.O-what-he-would-have-done-instead-of-sing.jpg";

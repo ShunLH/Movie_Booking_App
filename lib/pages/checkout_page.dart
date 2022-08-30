@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/pages/payment_page.dart';
 import 'package:movie_booking_app/pages/ticket_confirmation_page.dart';
+import 'package:movie_booking_app/widgets/cancelation_policy_view.dart';
 import 'package:movie_booking_app/viewItems/food_item_ticket_price_view.dart';
+import 'package:movie_booking_app/widgets/corner_separator_view.dart';
+import 'package:movie_booking_app/widgets/design_button_view.dart';
 import '../resources/colors.dart';
 import '../resources/dimens.dart';
-import '../viewItems/app_bar_back_button_view.dart';
+import '../widgets/app_bar_back_button_view.dart';
 import '../viewItems/date_time_location_view.dart';
 
 class CheckOutPage extends StatelessWidget {
@@ -27,59 +31,123 @@ class CheckOutPage extends StatelessWidget {
         }),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              height: 600,
-              margin: EdgeInsets.all(MARGIN_MEDIUM),
-              decoration: BoxDecoration(
-                color: CHECKOUT_SCREEN_TICKET_BG_COLOR,
-                borderRadius: BorderRadius.all(Radius.circular(MARGIN_MEDIUM)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(MARGIN_MEDIUM),
-                child: Column(
-                  children: [
-                    MovieTitleView(),
-                    SizedBox(height: MARGIN_SMALL),
-                    CinemaTitleView(),
-                    SizedBox(height: MARGIN_SMALL),
-                    DateTimeLocationView(),
-                    SizedBox(height: MARGIN_SMALL),
-                    TicketPriceView(),
-                    SizedBox(height: MARGIN_MEDIUM),
-                    SeparatorView(),
-                    SizedBox(height: MARGIN_MEDIUM),
-                    FoodAndBeveragePriceView(),
-                    SizedBox(height: MARGIN_MEDIUM),
-                    SeparatorView(),
-                    SizedBox(height: MARGIN_MEDIUM),
-                    ConvenienceFeeView(),
-                    SizedBox(height: MARGIN_MEDIUM_2),
-                    SeparatorView(),
-                    SizedBox(height: MARGIN_MEDIUM_2),
-                    TotalPriceView(),
-                  ],
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          margin: EdgeInsets.symmetric(vertical: MARGIN_MEDIUM),
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  width: MediaQuery.of(context).size.width - 32,
+                  height: 560,
+                  decoration: BoxDecoration(
+                    color: CHECKOUT_SCREEN_TICKET_BG_COLOR,
+                    borderRadius:
+                        BorderRadius.all(const Radius.circular(MARGIN_MEDIUM)),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.white12,Colors.white38]
+                    ),
+                  ),
+
                 ),
               ),
-            ),
-            SizedBox(height: MARGIN_LARGE),
-            ContinueButtonView(() => _onTappedContinue(context)),
-          ],
+              Align(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(MARGIN_MEDIUM),
+                            child: Container(
+                              child: Column(
+                                children: [
+                                  MovieTitleView(),
+                                  SizedBox(height: MARGIN_SMALL),
+                                  CinemaTitleView(),
+                                  SizedBox(height: MARGIN_SMALL),
+                                  DateTimeLocationView(),
+                                  SizedBox(height: MARGIN_SMALL),
+                                  TicketPriceView(),
+                                  SizedBox(height: MARGIN_SMALL),
+                                  SeparatorView(0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
+                      child: Padding(
+                        padding: EdgeInsets.all(MARGIN_MEDIUM),
+                        child: FoodAndBeveragePriceView(),
+                      ),
+                    ),
+                    CornerSeparator(30, Colors.transparent),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
+                      child: Padding(
+                        padding: EdgeInsets.all(MARGIN_MEDIUM),
+                        child: Column(
+                          children: [
+                            ConvenienceFeeView(() {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text(""),
+                                    backgroundColor: Colors.transparent,
+                                    content: CancelationPolicyView(),
+                                  );
+                                },
+                              );
+                            }),
+                            SizedBox(height: MARGIN_MEDIUM_2),
+                            SeparatorView(0),
+                            SizedBox(height: MARGIN_MEDIUM_2),
+                            TotalPriceView(),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: MARGIN_LARGE),
+                    ContinueButtonView(() => _onTappedContinue(context)),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
   void _onTappedContinue(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => TicketConfirmationPage()),);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PaymentPage()),
+    );
   }
+
+  // Widget _onTappedCancelationPolicy(BuildContext context) {
+  //   return showDialog(context: context, builder: (context) {  return AlertDialog(
+  //     title: Text(""),
+  //     content: CancelationPolicyView(),
+  //   );});
+  //
+  // }
 }
 
-class TotalPriceView extends StatelessWidget{
-
+class TotalPriceView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -108,6 +176,8 @@ class TotalPriceView extends StatelessWidget{
 }
 
 class ConvenienceFeeView extends StatelessWidget {
+  Function onTappedCancelationPolicy;
+  ConvenienceFeeView(this.onTappedCancelationPolicy);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -145,7 +215,7 @@ class ConvenienceFeeView extends StatelessWidget {
           SizedBox(
             height: MARGIN_MEDIUM_2,
           ),
-          CancelationPolicyButtonView()
+          CancelationPolicyButtonView(() => this.onTappedCancelationPolicy())
         ],
       ),
     );
@@ -153,33 +223,39 @@ class ConvenienceFeeView extends StatelessWidget {
 }
 
 class CancelationPolicyButtonView extends StatelessWidget {
+  Function onTappedCancelationPolicy;
+  CancelationPolicyButtonView(this.onTappedCancelationPolicy);
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-        width: 240,
-        height: 32,
-        decoration: BoxDecoration(
-            color: Colors.orange,
-            borderRadius: BorderRadius.all(Radius.circular(MARGIN_MEDIUM))),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
-          child: Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                color: Colors.white,
-                size: ICON_MEDIUM_SIZE,
-              ),
-              SizedBox(width: MARGIN_XSMALL),
-              Text(
-                "Ticket cancelation Policy",
-                style: TextStyle(
+    return GestureDetector(
+      onTap: () => this.onTappedCancelationPolicy(),
+      child: Container(
+          width: 240,
+          height: 32,
+          decoration: BoxDecoration(
+              color: Colors.orange,
+              borderRadius: BorderRadius.all(Radius.circular(MARGIN_MEDIUM))),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
                   color: Colors.white,
+                  size: ICON_MEDIUM_SIZE,
                 ),
-              ),
-            ],
-          ),
-        ));
+                SizedBox(width: MARGIN_XSMALL),
+                Text(
+                  "Ticket cancelation Policy",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          )),
+    );
   }
 }
 
@@ -238,16 +314,6 @@ class TicketPriceView extends StatelessWidget {
   }
 }
 
-class SeparatorView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 2,
-      color: Colors.white24,
-    );
-  }
-}
-
 class ContinueButtonView extends StatelessWidget {
   Function onTappedContinue;
 
@@ -255,23 +321,7 @@ class ContinueButtonView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      height: 40,
-      color: THEME_COLOR,
-      child: TextButton(
-        onPressed: () {
-          this.onTappedContinue();
-        },
-        child: Text(
-          "Continue",
-          style: TextStyle(
-              color: Colors.black,
-              fontSize: TEXT_REGULAR_2X,
-              fontWeight: FontWeight.w700),
-        ),
-      ),
-    );
+    return DesignButtonView("Continue", THEME_COLOR, ()=>onTappedContinue());
   }
 }
 
@@ -330,7 +380,6 @@ class MovieTitleView extends StatelessWidget {
     );
   }
 }
-
 
 class FoodAndBeverageTotalPriceTitleView extends StatelessWidget {
   @override

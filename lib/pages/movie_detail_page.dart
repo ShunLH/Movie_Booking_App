@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:movie_booking_app/assets.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/strings.dart';
-import 'package:movie_booking_app/viewItems/title_text_view.dart';
+import 'package:movie_booking_app/widgets/title_text_view.dart';
+import 'package:movie_booking_app/widgets/gradient_view.dart';
 
 import '../resources/dimens.dart';
 import '../viewItems/cast_view.dart';
+import '../widgets/design_button_view.dart';
 import 'movie_time_page.dart';
 
 class MovieDetailsPage extends StatelessWidget {
-  final List<String> genreList = ["Action", "Adventure", "Romance","Comedy"];
+  final bool isCommingSoon;
+  final List<String> genreList = ["Action", "Adventure", "Romance", "Comedy"];
+  MovieDetailsPage(this.isCommingSoon);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,34 +25,31 @@ class MovieDetailsPage extends StatelessWidget {
               child: CustomScrollView(
                 slivers: [
                   MovieDetailSliverAppBarView(
-                    genreList,
-                    () => Navigator.pop(context),
-                  ),
+                      genreList, () => Navigator.pop(context)),
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
                         Container(
                           padding: EdgeInsets.only(
-                            left: MARGIN_MEDIUM,
-                            right: MARGIN_MEDIUM,
-                            top: MARGIN_LARGE,
-                            bottom: MARGIN_LARGE,
-                          ),
+                              left: MARGIN_MEDIUM,
+                              right: MARGIN_MEDIUM,
+                              top: MARGIN_LARGE,
+                              bottom: MARGIN_LARGE),
                           child: AboutFlimSectionView(),
                         ),
+                        Visibility(
+                          visible: isCommingSoon,
+                          child: CommingSoonView(),
+                        ),
                         Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: MARGIN_MEDIUM,
-                          ),
+                          margin:
+                              EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
                           child: StoryLineSection(),
                         ),
-                        SizedBox(
-                          height: MARGIN_MEDIUM,
-                        ),
+                        SizedBox(height: MARGIN_MEDIUM),
                         Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: MARGIN_MEDIUM,
-                          ),
+                          margin:
+                              EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
                           child: CastSectionView(),
                         ),
                       ],
@@ -61,21 +62,11 @@ class MovieDetailsPage extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: MARGIN_LARGE,
-              ),
-              child: Container(
-                width: BOOKING_BTN_WIDTH,
-                height: BOOKING_BTN_HEIGHT,
-                color: THEME_COLOR,
-                child: TextButton(
-                    child: Text(
-                      "Booking",
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                    onPressed: () => _navigateToMovieTimePage(context)),
+              padding: const EdgeInsets.only(bottom: MARGIN_LARGE),
+              child: Visibility(
+                visible: !isCommingSoon,
+                child: BookingButtonView(
+                    () => this._navigateToMovieTimePage(context)),
               ),
             ),
           )
@@ -90,6 +81,113 @@ class MovieDetailsPage extends StatelessWidget {
         MaterialPageRoute(
           builder: (context) => MovieTimePage(),
         ));
+  }
+}
+
+class CommingSoonView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 160,
+      margin: EdgeInsets.only(
+          left: MARGIN_MEDIUM, right: MARGIN_MEDIUM, bottom: MARGIN_MEDIUM),
+      child: Stack(
+        children: [
+          Positioned.fill(
+              child: Container(
+            child: GradientView(
+              [
+                Colors.white12,
+                DARK_GRAY_TEXT_COLOR,
+              ],
+              MARGIN_MEDIUM,
+            ),
+          )),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Container(
+              padding: EdgeInsets.all(MARGIN_MEDIUM),
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RegularBoldTextView("Releasing in 5 days", Colors.white),
+                    SizedBox(height: MARGIN_MEDIUM),
+                    Wrap(children: [
+                      RegularNormalTextView(
+                          "Get notify as soon as movie booking opens up in your city!",
+                          DARK_GRAY_TEXT_COLOR)
+                    ]),
+                    SizedBox(height: MARGIN_MEDIUM),
+                    NotificationButtonView(
+                        () => this._onClickNotification(context))
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: CommingSoonIllustrationImageView(),
+          )
+        ],
+      ),
+    );
+  }
+
+  void _onClickNotification(BuildContext context) {
+    print("_onClickNotification");
+  }
+}
+
+class CommingSoonIllustrationImageView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 100,
+      child: Image.asset(
+        "assets/images/illustration.png",
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+}
+
+class NotificationButtonView extends StatelessWidget {
+  Function onTappedButton;
+
+  NotificationButtonView(this.onTappedButton);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 170,
+      height: DONE_BTN_HEIGHT,
+      padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
+      decoration: BoxDecoration(
+          color: THEME_COLOR,
+          borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
+      child: TextButton(
+        onPressed: () {
+          this.onTappedButton();
+        },
+        child: Container(
+          child: Row(children: [
+            Icon(Icons.notifications_active,
+                color: Colors.black, size: ICON_MEDIUM_SIZE),
+            Spacer(),
+            Text(
+              "Notifications",
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: TEXT_REGULAR_2X,
+                  fontWeight: FontWeight.w700),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 }
 
@@ -121,7 +219,7 @@ class HorizontalCastListView extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           itemCount: 6,
           itemBuilder: (BuildContext context, int index) {
-            return CastView(cast_img);
+            return CastView(castImg);
           },
         ));
   }
@@ -294,7 +392,6 @@ class MovieNameAndGenreView extends StatelessWidget {
           spacing: MARGIN_SMALL,
           alignment: WrapAlignment.start,
           children: genreList.map((genre) => GenreChipView(genre)).toList(),
-
         ),
       ],
     );
@@ -530,5 +627,13 @@ class MovieDetailAppBarImageVIew extends StatelessWidget {
       "https://cms.dmpcdn.com/moviearticle/2022/04/13/56fb4fc0-bb49-11ec-8f2e-f393db1d7b77_webp_original.jpg",
       fit: BoxFit.cover,
     );
+  }
+}
+class BookingButtonView extends StatelessWidget {
+  Function onTappedBooking;
+  BookingButtonView(this.onTappedBooking);
+  @override
+  Widget build(BuildContext context) {
+    return DesignButtonView("Booking", THEME_COLOR, () => this.onTappedBooking());
   }
 }

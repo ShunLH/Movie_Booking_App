@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:movie_booking_app/assets.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import '../resources/dimens.dart';
+import '../widgets/gradient_view.dart';
 
 class MovieView extends StatelessWidget {
   final String _item;
+  final bool isCommingSoon;
   final Function onTapMovie;
 
-  MovieView(this._item,this.onTapMovie);
-
+  MovieView(this._item,this.isCommingSoon,this.onTapMovie);
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +33,22 @@ class MovieView extends StatelessWidget {
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.network(
-                      _item,
-                      fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.only(topLeft:Radius.circular(MARGIN_SMALL),topRight: Radius.circular(MARGIN_SMALL)),
+                      child: Image.network(
+                        _item,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
+                  Positioned.fill(child: GradientView([Colors.transparent,Colors.black.withOpacity(0.5)],0.0),),
                   Padding(
                     padding: const EdgeInsets.all(MARGIN_XSMALL),
                     child: Align(
                       alignment: Alignment.topRight,
-                      child: CommingDateView(),
+                      child: Visibility(
+                        visible: this.isCommingSoon,
+                        child: CommingDateView(),),
                     )
                   ),
                 ],
@@ -128,29 +135,24 @@ class MovieView extends StatelessWidget {
 }
 
 class CommingDateView extends StatelessWidget {
-  const CommingDateView({
-    Key? key,
-  }) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: false,
-      child: Container(
-        width: COMMING_SOON_MOVIE_DATE_VIEW_SIZE,
-        height: COMMING_SOON_MOVIE_DATE_VIEW_SIZE,
-        decoration: BoxDecoration(
-          color: THEME_COLOR,
-          borderRadius: BorderRadius.all(Radius.circular(MARGIN_XSMALL)),
-        ),
-        child: Text(
-          "8th\nAug",
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: PRIMARY_COLOR,
-            fontSize: 10,
-            fontWeight: FontWeight.w400,
-          ),
+    return Container(
+      width: COMMING_SOON_MOVIE_DATE_VIEW_SIZE,
+      height: COMMING_SOON_MOVIE_DATE_VIEW_SIZE,
+      decoration: BoxDecoration(
+        color: THEME_COLOR,
+        borderRadius: BorderRadius.all(Radius.circular(MARGIN_XSMALL)),
+      ),
+      child: Text(
+        "8th\nAug",
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: PRIMARY_COLOR,
+          fontSize: 10,
+          fontWeight: FontWeight.w400,
         ),
       ),
     );

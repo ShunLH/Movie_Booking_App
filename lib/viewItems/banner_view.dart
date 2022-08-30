@@ -7,22 +7,25 @@ class BannerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(MARGIN_SMALL),
-      child: BannerImageView(),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
+        child: BannerImageView(),
+      ),
+      // child: Container(
+      //   color: Colors.red,
+      // ),
     );
   }
 }
 
 class BannerImageView extends StatelessWidget {
-  const BannerImageView({
-    Key? key,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Image.network(
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxwDwzu3trKoh0EtVAHLRvLjmYXVQTDLB8ORj8InCzKVaKcq7HzSl6Ak6noizAvYtImng&usqp=CAU",
-      fit: BoxFit.cover,
+      fit: BoxFit.fitHeight,
     );
   }
 }

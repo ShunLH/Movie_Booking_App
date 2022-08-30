@@ -7,9 +7,8 @@ class DateTimeLocationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 100,
+      height: 120,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           DateTimeIconView("Sat,12Jan 2022", Icons.calendar_month),
           Spacer(),
@@ -38,7 +37,7 @@ class DateTimeIconView extends StatelessWidget {
           Icon(
             icon,
             color: THEME_COLOR,
-            size: ICON_MEDIUM_SIZE,
+            size: MARGIN_LARGE,
           ),
           SizedBox(
             height: MARGIN_SMALL,
@@ -48,6 +47,7 @@ class DateTimeIconView extends StatelessWidget {
             child: Expanded(
               child: Text(
                 textStr,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: TEXT_CARD_SMALL,

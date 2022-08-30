@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:movie_booking_app/pages/CinemaPage.dart';
+import 'package:movie_booking_app/pages/login_page.dart';
+import 'package:movie_booking_app/pages/movie_search_view.dart';
 import 'package:movie_booking_app/pages/profile_page.dart';
-import 'package:movie_booking_app/pages/splash_screen.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
+import 'package:movie_booking_app/widgets/image_icon_view.dart';
 
 import 'pages/home_page.dart';
 import 'pages/tickets_page.dart';
@@ -24,7 +26,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MovieApp(),
+      home: LoginPage(),
     );
   }
 }
@@ -55,17 +57,17 @@ class _MovieAppState extends State<MovieApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         centerTitle: false,
+        automaticallyImplyLeading: false,
         title: Container(
           margin: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Icon(
-                Icons.assistant_navigation,
-                size: ICON_MEDIUM_SIZE,
-              ),
+              ImageIconView(
+                  "navigation_white.png", ICON_MEDIUM_SIZE, Colors.white),
               SizedBox(
                 width: MARGIN_SMALL,
               ),
@@ -81,17 +83,21 @@ class _MovieAppState extends State<MovieApp> {
         ),
         backgroundColor: PRIMARY_COLOR,
         actions: [
-          Container(
-            padding: EdgeInsets.all(MARGIN_NORMAL),
-            child: Icon(Icons.search_off_outlined),
+          GestureDetector(
+            onTap: (){
+              this._navigateToSearchMovieListView(context);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(MARGIN_NORMAL),
+              child: Icon(Icons.search),
+            ),
           ),
           Container(
-            padding: EdgeInsets.all(MARGIN_NORMAL),
+            padding: const EdgeInsets.all(MARGIN_NORMAL),
             child: Icon(Icons.notifications),
           ),
           Container(
-            padding: EdgeInsets.all(MARGIN_NORMAL),
-            child: Icon(Icons.qr_code_scanner),
+            child: ImageIconView("qr_scanner.png", 60, Colors.white),
           ),
         ],
       ),
@@ -100,24 +106,28 @@ class _MovieAppState extends State<MovieApp> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: PRIMARY_COLOR,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.play_circle),
+            icon: const ImageIcon(AssetImage("assets/images/play_video.png")),
+            activeIcon: const ImageIcon(AssetImage("assets/images/play_video.png")),
             label: 'Movies',
             backgroundColor: PRIMARY_COLOR,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.video_stable_rounded),
+            icon: const ImageIcon(AssetImage("assets/images/cinema.png")),
+            activeIcon: const ImageIcon(AssetImage("assets/images/cinema.png")),
             label: 'Cinema',
             backgroundColor: PRIMARY_COLOR,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.play_circle),
+            icon: ImageIcon(AssetImage("assets/images/tickets.png")),
+            activeIcon: ImageIcon(AssetImage("assets/images/tickets.png")),
             label: 'Tickets',
             backgroundColor: PRIMARY_COLOR,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
+            activeIcon: Icon(Icons.person),
             label: 'Profile',
             backgroundColor: PRIMARY_COLOR,
           ),
@@ -127,5 +137,12 @@ class _MovieAppState extends State<MovieApp> {
         onTap: _onItemTapped,
       ),
     );
+  }
+  void _navigateToSearchMovieListView(BuildContext context){
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MovieSearchView(),
+        ));
   }
 }

@@ -18,20 +18,23 @@ class FoodItemView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: STATUS_SECTION_COLOR,
-        borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))
+        borderRadius: BorderRadius.all(Radius.circular(MARGIN_MEDIUM)),
+        gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white10, STATUS_SECTION_COLOR]),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: EdgeInsets.all(MARGIN_MEDIUM),
-            height: 130,
-            width: (MediaQuery.of(context).size.width/2) - 36,
+            height: SNACK_IMAGE_HEIGHT,
+            width: (MediaQuery.of(context).size.width / 2) - 36,
             child: FnBImageView(itemImage),
           ),
           Container(
-            width: (MediaQuery.of(context).size.width/2) - 36,
+            width: (MediaQuery.of(context).size.width / 2) - 36,
             child: Text(
               this.item,
               style: TextStyle(
@@ -45,7 +48,7 @@ class FoodItemView extends StatelessWidget {
             height: MARGIN_SMALL,
           ),
           Container(
-            width: (MediaQuery.of(context).size.width/2) - 36,
+            width: (MediaQuery.of(context).size.width / 2) - 36,
             child: Text(
               itemPrice,
               style: TextStyle(
@@ -55,11 +58,10 @@ class FoodItemView extends StatelessWidget {
               ),
             ),
           ),
-
           TextButton(
             onPressed: () => this.onTappedAddButton(),
             child: Container(
-              width: (MediaQuery.of(context).size.width/2) - 36,
+              width: (MediaQuery.of(context).size.width / 2) - 36,
               height: ADD_BUTTON_HEIGHT,
               decoration: BoxDecoration(
                 color: THEME_COLOR,

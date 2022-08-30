@@ -1,152 +1,107 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/resources/colors.dart';
+import 'package:movie_booking_app/resources/dimens.dart';
+import 'package:movie_booking_app/resources/dummy.dart';
 
-import '../assets.dart';
+import '../viewItems/profile_menu_item_view.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.blueAccent,
-    );
-  }
-}
-
-class GridViewAnimationPage extends StatefulWidget {
-  static final String path = "lib/src/pages/lists/grid_view.dart";
-
-  @override
-  _GridViewAnimationPageState createState() => _GridViewAnimationPageState();
-}
-
-class _GridViewAnimationPageState extends State<GridViewAnimationPage> {
-  final List<String> _listItem = [
-    kathmandu1,
-    fewalake,
-    tokyo,
-    mountEverest,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Icon(Icons.menu),
-        title: Text("Home"),
-        actions: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Container(
-              width: 36,
-              height: 30,
-              decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(10)),
-              child: Center(child: Text("0")),
-            ),
-          )
-        ],
-      ),
-      body: SafeArea(
+    return SingleChildScrollView(
+      child: SafeArea(
         child: Container(
-          padding: EdgeInsets.all(20.0),
+          color: Colors.black,
           child: Column(
-            children: <Widget>[
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Container(
-                width: double.infinity,
-                height: 250,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    image: DecorationImage(
-                        image: NetworkImage(
-                            'https://cdn.pixabay.com/photo/2017/08/31/11/55/wedding-2700495__340.jpg'),
-                        fit: BoxFit.cover)),
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient:
-                      LinearGradient(begin: Alignment.bottomRight, colors: [
-                        Colors.black.withOpacity(.4),
-                        Colors.black.withOpacity(.2),
-                      ])),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        "Lifestyle Sale",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold),
+                width: MediaQuery.of(context).size.width,
+                height: 240,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.asset(
+                        "assets/images/cinema_background.png",
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
                       ),
-                      SizedBox(
-                        height: 30,
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.all(MARGIN_MEDIUM_2),
+                        child: LoginColumnView(),
                       ),
-                      Container(
-                        height: 50,
-                        margin: EdgeInsets.symmetric(horizontal: 40),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white),
-                        child: Center(
-                            child: Text(
-                              "Shop Now",
-                              style: TextStyle(
-                                  color: Colors.grey[900],
-                                  fontWeight: FontWeight.bold),
-                            )),
-                      ),
-                      SizedBox(
-                        height: 30,
-                      ),
-                    ],
-                  ),
+                    )
+                  ],
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    children: _listItem
-                        .map((item) => Card(
-                      color: Colors.transparent,
-                      elevation: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                                image: NetworkImage(item),
-                                fit: BoxFit.cover)),
-                        child: Transform.translate(
-                          offset: Offset(50, -50),
-                          child: Container(
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 65, vertical: 63),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.white),
-                            child: Icon(
-                              Icons.bookmark_border,
-                              size: 15,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ))
-                        .toList(),
-                  ))
+              SizedBox(height: MARGIN_SMALL),
+              Container(
+                child: MenuListView(() => {}),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+class MenuListView extends StatelessWidget {
+  Function onTappedMenu;
+  MenuListView(this.onTappedMenu);
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: itemList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ProfileMenuItemView(itemList[index], () => this.onTappedMenu());
+        }
+    );
+  }
+}
+
+class LoginColumnView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Image.asset("assets/images/profile-circled.png",
+            fit: BoxFit.fitWidth,
+            width: MediaQuery.of(context).size.width * 0.3),
+        SizedBox(height: MARGIN_SMALL),
+        LoginButtonView()
+      ],
+    );
+  }
+}
+
+class LoginButtonView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: MediaQuery.of(context).size.width * 0.45,
+        height: BOOKING_BTN_HEIGHT,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
+            border: Border.all(
+                color: THEME_COLOR, width: 1.0, style: BorderStyle.solid)),
+        child: TextButton(
+          onPressed: () => {},
+          child: Text(
+            "Login or Sign Up",
+            style: TextStyle(
+                color: THEME_COLOR,
+                fontWeight: FontWeight.bold,
+                fontSize: TEXT_REGULAR),
+          ),
+        ));
   }
 }

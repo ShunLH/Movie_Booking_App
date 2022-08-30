@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:movie_booking_app/pages/food_and_beverage_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/strings.dart';
-import 'package:movie_booking_app/viewItems/title_text_view.dart';
+import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../resources/dummy.dart';
 import '../resources/dimens.dart';
-import '../viewItems/app_bar_back_button_view.dart';
+import '../viewItems/playing_dates_view.dart';
+import '../widgets/app_bar_back_button_view.dart';
+import '../widgets/icon_text_view.dart';
 
 class MovieTimePage extends StatelessWidget {
   final List<String> cinemaTypeList = ["2D", "3D", "3D Max", "3D DBox"];
+  final List<String> cinemaList = [
+    "JCGV:Junction City",
+    "JCGV:City Mall",
+    "Mingalar Cinema Gold Class"
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,24 +26,7 @@ class MovieTimePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         title: Container(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Icon(
-                Icons.navigation,
-              ),
-              SizedBox(
-                width: MARGIN_SMALL,
-              ),
-              Text(
-                "Yangon",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: TEXT_REGULAR,
-                ),
-              ),
-            ],
-          ),
+          child: LocationView("Yangon"),
         ),
         leading: AppBarBackButtonView(() {
           Navigator.pop(context);
@@ -46,10 +39,9 @@ class MovieTimePage extends StatelessWidget {
             ),
           ),
           Container(
-              padding: EdgeInsets.all(MARGIN_SMALL),
-              child: Icon(
-                Icons.movie_filter,
-              )),
+            padding: EdgeInsets.all(MARGIN_SMALL),
+            child: ImageIcon(AssetImage("assets/images/filter_white.png")),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -62,25 +54,32 @@ class MovieTimePage extends StatelessWidget {
               Container(
                 child: HorizontalMoviePlayingDatesListView(),
               ),
-              SizedBox(
-                height: MARGIN_MEDIUM,
-              ),
+              SizedBox(height: MARGIN_MEDIUM),
               CinemaTypeSectionView(cinemaTypeList),
-              SizedBox(
-                height: MARGIN_MEDIUM,
-              ),
+              SizedBox(height: MARGIN_MEDIUM),
               AvaliableStatusSectionView(),
-              SizedBox(
-                height: MARGIN_MEDIUM,
+              SizedBox(height: MARGIN_MEDIUM),
+              Container(
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: cinemaList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Container(
+                        child: Column(
+                          children: [
+                            AvaliableCinemaView(cinemaList[index],
+                                () => _navigateToFoodAndBeverageView(context)),
+                            Visibility(
+                              visible:
+                                  index < cinemaList.length - 1 ? true : false,
+                              child: SepartorLineView(Colors.white70),
+                            )
+                          ],
+                        ),
+                      );
+                    }),
               ),
-              AvaliableCinemaView(
-                  "JCGV:Junction City", () => _navigateToFoodAndBeverageView(context)),
-              SepartorLineView(),
-              AvaliableCinemaView(
-                  "JCGV:City Mall", () => _navigateToFoodAndBeverageView(context)),
-              SepartorLineView(),
-              AvaliableCinemaView("Mingalar Cinema Gold Clas",
-                  () => _navigateToFoodAndBeverageView(context)),
             ],
           ),
         ),
@@ -89,9 +88,35 @@ class MovieTimePage extends StatelessWidget {
   }
 
   void _navigateToFoodAndBeverageView(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (context) => FoodAndBeveragePage(),
-    ));
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FoodAndBeveragePage(),
+        ));
+  }
+}
+
+class LocationView extends StatelessWidget {
+  final String locationName;
+  LocationView(this.locationName);
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ImageIcon(AssetImage("assets/images/navigation_white.png")),
+        SizedBox(
+          width: MARGIN_SMALL,
+        ),
+        Text(
+          this.locationName,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: TEXT_REGULAR,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -105,13 +130,6 @@ class AvaliableCinemaView extends StatefulWidget {
 }
 
 class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
-  final List<String> _movieTimeList = [
-    "9:00 am",
-    "12:00 am",
-    "1:30 pm",
-    "3:30 pm",
-    "6:30 pm",
-  ];
   bool isShowDetail = false;
 
   void _onTappedShowDetail() {
@@ -132,15 +150,11 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                IconTextView("Parking", Icons.local_parking_rounded),
-                SizedBox(
-                  width: MARGIN_MEDIUM,
-                ),
-                IconTextView("Online Food", Icons.emoji_food_beverage),
-                SizedBox(
-                  width: MARGIN_MEDIUM,
-                ),
-                IconTextView("Wheel Chair", Icons.wheelchair_pickup),
+                IconTextView("Parking", "parking_white.png"),
+                SizedBox(width: MARGIN_MEDIUM),
+                IconTextView("Online Food", "fnb_icon.png"),
+                SizedBox(width: MARGIN_MEDIUM),
+                IconTextView("Wheel Chair", "wheelchair_white.png"),
               ]),
           SizedBox(
             height: MARGIN_MEDIUM,
@@ -151,39 +165,32 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
               children: [
                 Container(
                   padding: EdgeInsets.all(MARGIN_SMALL),
-                  height: AVALIABLE_TIME_GRID_SECTION_HEIGHT,
-                  child: GridView.count(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: MARGIN_MEDIUM,
-                      mainAxisSpacing: MARGIN_MEDIUM,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
-                          child: MovieTimeView(Colors.white70,Colors.white10,()=> this.widget.onTappedMovieTime()),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
-                          child: MovieTimeView(Colors.white,MOVIE_TIME_GREEN_BORDER_COLOR,()=> this.widget.onTappedMovieTime()),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
-                          child: MovieTimeView(Colors.white,MOVIE_TIME_PINK_BORDER_COLOR,()=> this.widget.onTappedMovieTime()),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
-                          child: MovieTimeView(Colors.white,MOVIE_TIME_GREEN_BORDER_COLOR,()=> this.widget.onTappedMovieTime()),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
-                          child: MovieTimeView(Colors.white,MOVIE_TIME_ORANGE_BORDER_COLOR,()=> this.widget.onTappedMovieTime()),
-                        ),
-
-                      ]),
+                  child: Expanded(
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent:
+                              MediaQuery.of(context).size.width / 3,
+                          childAspectRatio: 1,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: movieTimeSlotList.length,
+                      itemBuilder: (BuildContext context, index) {
+                        return Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
+                          child: MovieTimeView(movieTimeSlotList[index],
+                              () => this.widget.onTappedMovieTime()),
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: MARGIN_MEDIUM,
                 ),
-                IconTextView(SEE_SEAT_CLASS_INFO_TEXT, Icons.info_rounded),
+                IconTextView(SEE_SEAT_CLASS_INFO_TEXT, "info_icon.png"),
               ],
             ),
           ),
@@ -194,49 +201,68 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
 }
 
 class MovieTimeView extends StatelessWidget {
-  final Color textColor;
-  final Color viewColor;
+
+  final MovieTimeSlotVO movieTimeSlot;
   Function onTappedMoviewTime;
 
-  MovieTimeView(this.textColor,this.viewColor,this.onTappedMoviewTime);
+  Color _getBackgroundColor(AvaliableStatus status){
+    Color bgColor = PRIMARY_COLOR;
+    switch (status) {
+      case AvaliableStatus.ALMOST_FULL :
+        bgColor = MOVIE_TIME_PINK_BORDER_COLOR;
+        break;
+      case AvaliableStatus.AVALIABLE :
+        bgColor = MOVIE_TIME_GREEN_BORDER_COLOR;
+        break;
+      case AvaliableStatus.FILLING_FAST :
+        bgColor = MOVIE_TIME_ORANGE_BORDER_COLOR;
+        break;
+      case AvaliableStatus.NOT_AVALIABLE :
+        bgColor = STATUS_SECTION_COLOR;
+        break;
+    }
+    return bgColor;
+  }
+
+  MovieTimeView(this.movieTimeSlot,this.onTappedMoviewTime);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: STATUS_SECTION_COLOR,
-          border:
-              Border.all(color: viewColor, width: 2.0)),
-      child: GestureDetector(
-        onTap: (){
-          this.onTappedMoviewTime();
-        },
+    return GestureDetector(
+      onTap: () => onTappedMoviewTime(),
+      child: Container(
+        decoration: BoxDecoration(
+            color: _getBackgroundColor(this.movieTimeSlot.avaliableStatus).withOpacity(0.15),
+            border: Border.all(color: _getBackgroundColor(this.movieTimeSlot.avaliableStatus), width: 2.0)),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("9 AM",
+              Text(this.movieTimeSlot.time,
                   style: TextStyle(
-                    color: this.textColor,
+                    color: this.movieTimeSlot.avaliableStatus == AvaliableStatus.NOT_AVALIABLE ? GRAY_TEXT_COLOR : Colors.white,
                     fontSize: TEXT_REGULAR,
                   )),
               SizedBox(height: MARGIN_XSMALL),
-              Text("3D",
+              Text(this.movieTimeSlot.cinemaType,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: this.movieTimeSlot.avaliableStatus == AvaliableStatus.NOT_AVALIABLE ? GRAY_TEXT_COLOR : Colors.white,
                     fontSize: TEXT_REGULAR,
                   )),
               SizedBox(height: MARGIN_XSMALL),
-              Text("Season 1",
+              Text(this.movieTimeSlot.screenType,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: this.movieTimeSlot.avaliableStatus == AvaliableStatus.NOT_AVALIABLE ? GRAY_TEXT_COLOR : Colors.white,
                     fontSize: TEXT_REGULAR,
                   )),
               SizedBox(height: MARGIN_XSMALL),
-              Text("2 Avaliable",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: TEXT_REGULAR,
-                  )),
+              Visibility(
+                visible: this.movieTimeSlot.avaliableCount > 0 ? true : false,
+                child: Text("2 Avaliable",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: TEXT_REGULAR,
+                    )),
+              ),
             ]),
       ),
     );
@@ -244,11 +270,13 @@ class MovieTimeView extends StatelessWidget {
 }
 
 class SepartorLineView extends StatelessWidget {
+  final Color lineColor;
+  SepartorLineView(@required this.lineColor);
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: STATUS_SECTION_COLOR,
-      height: MARGIN_XSMALL,
+      color: lineColor,
+      height: MARGIN_LINE_1,
     );
   }
 }
@@ -265,35 +293,6 @@ class CinemaTitleView extends StatelessWidget {
         TitleTextView(title),
         Spacer(),
         SeeDetailsButtonView(() => this.onTapSeeDetail())
-      ],
-    );
-  }
-}
-
-class IconTextView extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  IconTextView(this.title, this.icon);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-          size: ICON_MEDIUM_SIZE,
-          color: Colors.white70,
-        ),
-        SizedBox(
-          width: MARGIN_XSMALL,
-        ),
-        Text(
-          title,
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: TEXT_REGULAR,
-          ),
-        ),
       ],
     );
   }
@@ -320,80 +319,36 @@ class SeeDetailsButtonView extends StatelessWidget {
   }
 }
 
-class HorizontalMoviePlayingDatesListView extends StatelessWidget {
+class HorizontalMoviePlayingDatesListView extends StatefulWidget {
+  @override
+  State<HorizontalMoviePlayingDatesListView> createState() =>
+      _HorizontalMoviePlayingDatesListViewState();
+}
+
+class _HorizontalMoviePlayingDatesListViewState
+    extends State<HorizontalMoviePlayingDatesListView> {
+  int selectedIndex = 0;
+
+  void _onTappedSelectd(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
         height: SCHEDULE_LIST_HEIGHT,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: 10,
+          itemCount: movieDateList.length,
           itemBuilder: (BuildContext context, int index) {
-            return PlayingDatesView();
+            return PlayingDatesView(
+                movieDateList[index],
+                selectedIndex == index ? true : false,
+                () => _onTappedSelectd(index));
           },
         ));
-  }
-}
-
-class PlayingDatesView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(10.0),
-      width: MediaQuery.of(context).size.width * 0.2,
-      color: PRIMARY_COLOR,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Container(
-              child: Image.asset(
-                "assets/images/Rectangle.png",
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  "Today",
-                  style: TextStyle(
-                    color: PRIMARY_COLOR,
-                    fontSize: TEXT_SMALL,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(
-                  height: MARGIN_SMALL,
-                ),
-                Text(
-                  "May",
-                  style: TextStyle(
-                    color: PRIMARY_COLOR,
-                    fontSize: TEXT_SMALL,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(
-                  height: MARGIN_SMALL,
-                ),
-                Text(
-                  "10",
-                  style: TextStyle(
-                    color: PRIMARY_COLOR,
-                    fontSize: TEXT_SMALL,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
   }
 }
 
@@ -421,6 +376,7 @@ class CinemaChipView extends StatelessWidget {
     return Row(
       children: [
         Chip(
+          shadowColor: THEME_COLOR,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
           backgroundColor: Colors.black38,
