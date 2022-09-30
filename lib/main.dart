@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/vos/city_vo.dart';
+import 'package:movie_booking_app/network/dataagents/retrofit_data_agent_impl.dart';
 import 'package:movie_booking_app/pages/CinemaPage.dart';
+import 'package:movie_booking_app/pages/cinema_page.dart';
 import 'package:movie_booking_app/pages/login_page.dart';
 import 'package:movie_booking_app/pages/movie_search_view.dart';
 import 'package:movie_booking_app/pages/profile_page.dart';
@@ -11,6 +14,9 @@ import 'pages/home_page.dart';
 import 'pages/tickets_page.dart';
 
 void main() {
+  RetrofitDataAgentImpl()
+      .getOTP("959797119647")
+      ?.then((response) => print(response.code.toString()));
   runApp(const MyApp());
 }
 
@@ -32,7 +38,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MovieApp extends StatefulWidget {
-  const MovieApp({Key? key}) : super(key: key);
+  final CityVO? city;
+
+  MovieApp({required this.city});
 
   @override
   State<MovieApp> createState() => _MovieAppState();
@@ -42,7 +50,7 @@ class _MovieAppState extends State<MovieApp> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
+  static List<Widget> _widgetOptions = <Widget>[
     MyHomePage(),
     CinemaPage(),
     TicketsPage(),
@@ -52,6 +60,12 @@ class _MovieAppState extends State<MovieApp> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print("city ${this.widget.city?.name}");
   }
 
   @override
@@ -72,7 +86,7 @@ class _MovieAppState extends State<MovieApp> {
                 width: MARGIN_SMALL,
               ),
               Text(
-                "Yangon",
+                "${this.widget.city?.name ?? "Ygn"}",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: TEXT_REGULAR,
@@ -84,7 +98,7 @@ class _MovieAppState extends State<MovieApp> {
         backgroundColor: PRIMARY_COLOR,
         actions: [
           GestureDetector(
-            onTap: (){
+            onTap: () {
               this._navigateToSearchMovieListView(context);
             },
             child: Container(
@@ -109,7 +123,8 @@ class _MovieAppState extends State<MovieApp> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: const ImageIcon(AssetImage("assets/images/play_video.png")),
-            activeIcon: const ImageIcon(AssetImage("assets/images/play_video.png")),
+            activeIcon:
+                const ImageIcon(AssetImage("assets/images/play_video.png")),
             label: 'Movies',
             backgroundColor: PRIMARY_COLOR,
           ),
@@ -138,7 +153,8 @@ class _MovieAppState extends State<MovieApp> {
       ),
     );
   }
-  void _navigateToSearchMovieListView(BuildContext context){
+
+  void _navigateToSearchMovieListView(BuildContext context) {
     Navigator.push(
         context,
         MaterialPageRoute(

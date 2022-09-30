@@ -1,22 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/models/data_repository.dart';
+import 'package:movie_booking_app/data/models/movie_model.dart';
+import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/city_vo.dart';
 import 'package:movie_booking_app/main.dart';
-import 'package:movie_booking_app/pages/home_page.dart';
-import 'package:movie_booking_app/pages/movie_time_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 
 import '../widgets/gradient_view.dart';
+import '../widgets/separator_line_view.dart';
 import '../widgets/title_text_view.dart';
 
-class PickRegionPage extends StatelessWidget {
-  final List<String> citiesList = [
-    "Yangon",
-    "Mandalay",
-    "Naypyidaw",
-    "Bago",
-    "Mawlamyine"
-  ];
+class PickRegionPage extends StatefulWidget {
+  @override
+  State<PickRegionPage> createState() => _PickRegionPageState();
+
+}
+
+class _PickRegionPageState extends State<PickRegionPage> {
+  MovieModel movieModel = MovieModelImpl();
+  DataRepository dataRepository = DataRepository();
+  List<CityVO>? citiesList;
+
+  @override
+  void initState() {
+    super.initState();
+        movieModel.getCities()?.then((cities) {
+      setState(() {
+        this.citiesList = cities;
+      });
+    }).catchError((error) => debugPrint(error.toString()));
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,14 +74,26 @@ class PickRegionPage extends StatelessWidget {
               ),
             ),
             CitiesTitleView(),
-            CitiesListView(citiesList,()=>this._navigateToHomePage(context)),
+            CitiesListView(citiesList,(cityId)=>this._navigateToHomePage(context,cityId)),
           ],
         ),
       )),
     );
   }
-  void _navigateToHomePage(BuildContext context){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MovieApp()));
+
+  void _navigateToHomePage(BuildContext context,cityId){
+    if (citiesList != null) {
+      CityVO selectedCity = citiesList!.where((city) => city.id == cityId).first;
+      String bearerToken = dataRepository.getAuthorizationToken();
+      print("Token $bearerToken");
+
+      movieModel.setCity(bearerToken, "${cityId}")?.then((response){
+        if(response.code == 200){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => MovieApp(city: selectedCity)));
+        }
+      });
+
+    }
   }
 }
 
@@ -142,8 +171,8 @@ class BuildingImageView extends StatelessWidget {
 
 class CitiesListView extends StatelessWidget {
 
-  final List<String> citiesList;
-  Function onTappedCity;
+  final List<CityVO>? citiesList;
+  Function(int) onTappedCity;
   CitiesListView(this.citiesList,this.onTappedCity);
 
   @override
@@ -151,9 +180,9 @@ class CitiesListView extends StatelessWidget {
     return ListView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      itemCount: citiesList.length,
+      itemCount: citiesList?.length ?? 0,
       itemBuilder: (BuildContext context, int index) {
-        return CityListItemView(onTappedCity: onTappedCity, city: citiesList[index]);
+        return CityListItemView(onTappedCity: onTappedCity, city: citiesList?[index]);
       },
     );
   }
@@ -167,12 +196,12 @@ class CityListItemView extends StatelessWidget {
   }) : super(key: key);
 
   final Function onTappedCity;
-  final String city;
+  final CityVO? city;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: ()=>this.onTappedCity(),
+      onTap: ()=>this.onTappedCity(city?.id ?? 0),
       child: Container(
         width: MediaQuery.of(context).size.width,
         color: Colors.black,
@@ -181,7 +210,7 @@ class CityListItemView extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(MARGIN_MEDIUM),
-              child: CityTextView(city),
+              child: CityTextView(city?.name ?? ""),
             ),
             SepartorLineView(STATUS_SECTION_COLOR),
           ],

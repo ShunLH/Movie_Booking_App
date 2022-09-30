@@ -5,6 +5,8 @@ import '../resources/colors.dart';
 import '../resources/dimens.dart';
 
 class FnBBottomTotalPriceButtonView extends StatelessWidget {
+  final int totalPrice;
+  FnBBottomTotalPriceButtonView(this.totalPrice);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,7 +29,7 @@ class FnBBottomTotalPriceButtonView extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: MARGIN_MEDIUM),
-            child: TotalPriceView(),
+            child: TotalPriceView(this.totalPrice),
           )
         ],
       ),
@@ -59,16 +61,14 @@ class BottomExpandableIconView extends StatelessWidget {
 }
 
 class TotalPriceView extends StatelessWidget {
-  const TotalPriceView({
-    Key? key,
-  }) : super(key: key);
-
+  final int totalPrice;
+  TotalPriceView(this.totalPrice);
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Text(
-          "2000Ks",
+          "${totalPrice}Ks",
           style: TextStyle(
             color: Colors.black,
             fontSize: TEXT_REGULAR,

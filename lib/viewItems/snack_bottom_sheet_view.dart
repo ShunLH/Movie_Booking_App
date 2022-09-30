@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/vos/snack_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 
 import 'fnb_sub_total_price_view.dart';
 
-class FoodItem {
-  String name;
-  int price;
+class SnackBottomSheetView extends StatefulWidget {
 
-  FoodItem(this.name,this.price);
+  final List<SnackVO> foodItemList;
+  Function onChangeQuantity;
+  SnackBottomSheetView(this.foodItemList,this.onChangeQuantity);
+
+  @override
+  State<SnackBottomSheetView> createState() => _SnackBottomSheetViewState();
 }
 
-class SnackBottomSheetView extends StatelessWidget {
+class _SnackBottomSheetViewState extends State<SnackBottomSheetView> {
+  int totalPrice = 0;
 
-  List<FoodItem> foodItemList = [
-    FoodItem("Coca Cola", 1000),
-    FoodItem("Potato Chips", 1200),
-    FoodItem("Burger Combo", 5000)
-  ];
+  @override
+  void initState() {
+    super.initState();
+    totalPrice = _calcTotalPrice();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,37 +36,56 @@ class SnackBottomSheetView extends StatelessWidget {
       child: Column(
         children: [
           Column(
-            children: foodItemList.map((item) => FoodItemRowView(item.name, item.price)).toList()
+            children: widget.foodItemList.map((item) => FoodItemRowView(item,(){
+              setState(() => totalPrice = _calcTotalPrice());
+              this.widget.onChangeQuantity();
+            })).toList()
           ),
           SizedBox(height: MARGIN_MEDIUM_2,),
-          FnBBottomTotalPriceButtonView()
+          FnBBottomTotalPriceButtonView(totalPrice)
         ],
       ),
     );
   }
+
+  int _calcTotalPrice(){
+    int total = 0;
+   this.widget.foodItemList.forEach((element) {
+     total += (element.price ?? 0) * (element.quantity ?? 1);
+   });
+   return total;
+  }
 }
 
 class FoodItemRowView extends StatefulWidget {
-  final String itemName;
-  final int itemPrice;
 
-  FoodItemRowView(this.itemName, this.itemPrice);
+  final SnackVO? mSnack;
+  Function onChangeQuantity;
+
+  FoodItemRowView(this.mSnack,this.onChangeQuantity);
   @override
   State<FoodItemRowView> createState() => _FoodItemRowViewState();
 }
 
 class _FoodItemRowViewState extends State<FoodItemRowView> {
   var _quantity = 1;
+  @override
+  void initState() {
+    super.initState();
+    _quantity = widget.mSnack?.quantity ?? 1;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        ItemNameTextView(this.widget.itemName),
+        Container(width: 86,child: ItemNameTextView(this.widget.mSnack?.name ?? "")),
         Spacer(),
         CirclePlusButtonView(() {
           setState(() {
             _quantity = _quantity + 1;
+            widget.mSnack?.quantity = _quantity;
+            this.widget.onChangeQuantity();
           });
         }),
         SizedBox(
@@ -71,10 +95,11 @@ class _FoodItemRowViewState extends State<FoodItemRowView> {
         CircleMinusButtonView(() {
           setState(() {
             _quantity = _quantity > 0 ? _quantity - 1 : _quantity;
+            this.widget.onChangeQuantity();
           });
         }),
         Spacer(),
-        ItemPriceTextView(this.widget.itemPrice * this._quantity),
+        ItemPriceTextView((this.widget.mSnack?.price ?? 0) * (this.widget.mSnack?.quantity ?? 1)),
       ],
     );
   }
@@ -126,17 +151,12 @@ class ItemNameTextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      child: Expanded(
-        child: Text(
-          itemName,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: TEXT_REGULAR,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+    return Text(
+      itemName,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: TEXT_REGULAR,
+        fontWeight: FontWeight.bold,
       ),
     );
   }

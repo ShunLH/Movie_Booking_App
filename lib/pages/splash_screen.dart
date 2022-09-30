@@ -20,6 +20,6 @@ class SplashScreen extends StatelessWidget {
   }
 
   void _navigateToHome(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MovieApp()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MovieApp(city: null)));
   }
 }

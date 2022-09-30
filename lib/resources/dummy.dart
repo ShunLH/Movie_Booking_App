@@ -5,7 +5,8 @@ class DateVO {
   String title;
   String month;
   String day;
-  DateVO(this.title, this.month, this.day);
+  String dateFormatedString;
+  DateVO(this.title, this.month, this.day,this.dateFormatedString);
 }
 
 enum AvaliableStatus { AVALIABLE, FILLING_FAST, ALMOST_FULL, NOT_AVALIABLE }
@@ -21,16 +22,16 @@ class MovieTimeSlotVO {
       this.avaliableStatus, this.avaliableCount);
 }
 
-final List<MovieTimeSlotVO> movieTimeSlotList = [
-  MovieTimeSlotVO(
-      "9:30 AM", "3D", "Screen 1", AvaliableStatus.NOT_AVALIABLE, 0),
-  MovieTimeSlotVO(
-      "12:30 PM", "3D Max", "Screen 1", AvaliableStatus.AVALIABLE, 21),
-  MovieTimeSlotVO("12:30 AM", "3D", "Screen 2", AvaliableStatus.ALMOST_FULL, 2),
-  MovieTimeSlotVO("3:30 AM", "3D", "Screen 2", AvaliableStatus.AVALIABLE, 23),
-  MovieTimeSlotVO(
-      "6:30 AM", "3D", "Screen 2", AvaliableStatus.FILLING_FAST, 21),
-];
+// final List<MovieTimeSlotVO> movieTimeSlotList = [
+//   MovieTimeSlotVO(
+//       "9:30 AM", "3D", "Screen 1", AvaliableStatus.NOT_AVALIABLE, 0),
+//   MovieTimeSlotVO(
+//       "12:30 PM", "3D Max", "Screen 1", AvaliableStatus.AVALIABLE, 21),
+//   MovieTimeSlotVO("12:30 AM", "3D", "Screen 2", AvaliableStatus.ALMOST_FULL, 2),
+//   MovieTimeSlotVO("3:30 AM", "3D", "Screen 2", AvaliableStatus.AVALIABLE, 23),
+//   MovieTimeSlotVO(
+//       "6:30 AM", "3D", "Screen 2", AvaliableStatus.FILLING_FAST, 21),
+// ];
 
 final List<ProfileMenu> itemList = [
   ProfileMenu("Purchase History", "purchase_history.png"),

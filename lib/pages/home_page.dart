@@ -1,18 +1,57 @@
+import 'dart:convert';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:movie_booking_app/data/models/data_repository.dart';
+import 'package:movie_booking_app/data/models/movie_model.dart';
+import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/banner_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_timeslot_status_vo.dart';
+import 'package:movie_booking_app/data/vos/movie_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 
-import '../assets.dart';
 import '../viewItems/banner_view.dart';
 import '../viewItems/movie_view.dart';
 import 'movie_detail_page.dart';
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class MyHomePage extends StatefulWidget {
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  MovieModel movieModel = MovieModelImpl();
+  List<BannerVO>? mBannerList;
+  @override
+  void initState() {
+    super.initState();
+    movieModel.getBanners()?.then((bannerList) {
+      setState(() {
+        this.mBannerList = bannerList;
+      });
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+    movieModel.getCinemasList("")?.then((cinemasList) {
+      setState(() {
+        dataRepository.cinemaList = cinemasList;
+      });
+    });
+
+    movieModel.getConfigsCinemaTimeSlots()?.then((configList) {
+      dataRepository.cinemaConfigList = configList;
+      List valueList = configList.first.value;
+      dataRepository.cinemaTimeSlotStatusList = valueList.map((value) => CinemaTimeSlotStatusVO.fromJson(value)).toList();
+      print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
+
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +63,9 @@ class MyHomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              BannerSectionView(),
+              BannerSectionView(mBannerList),
               SizedBox(height: MARGIN_LARGE),
-              MovieCategoryTabSectionView((isCommingSoon)  => _navigateToMovieDetailScreen(context,isCommingSoon)),
+              MovieCategoryTabSectionView((isCommingSoon,movieId)  => _navigateToMovieDetailScreen(context,isCommingSoon,movieId)),
               // SizedBox(height: MARGIN_LARGE),
               // MoviesGridSectionView(true,() => _navigateToMovieDetailScreen(context)),
             ],
@@ -36,16 +75,18 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  void _navigateToMovieDetailScreen(BuildContext context,isCommingSoon) {
+  void _navigateToMovieDetailScreen(BuildContext context,isCommingSoon,movieId) {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MovieDetailsPage(isCommingSoon),
+          builder: (context) => MovieDetailsPage(isCommingSoon: isCommingSoon,movieId: movieId,),
         ));
   }
 }
 
 class BannerSectionView extends StatefulWidget {
+  final List<BannerVO>? mBannersList;
+  BannerSectionView(this.mBannersList);
   @override
   State<BannerSectionView> createState() => _BannerSectionViewState();
 }
@@ -73,17 +114,17 @@ class _BannerSectionViewState extends State<BannerSectionView> {
             onPageChanged: onPageChange,
 
           ),
-          itemCount: 5,
+          itemCount: this.widget.mBannersList?.length ?? 0,
           itemBuilder: (BuildContext context, int itemIndex, int pageViewIndex) =>
               Container(
-                child: BannerView(),
+                child: (this.widget.mBannersList != null) ? BannerView(this.widget.mBannersList?[itemIndex]) : Container(),
               ),
         ),
         SizedBox(
           height: MARGIN_MEDIUM,
         ),
         DotsIndicator(
-          dotsCount: 5,
+          dotsCount: this.widget.mBannersList?.length ?? 1,
           position: _position,
           decorator: DotsDecorator(
             color: HOME_SCREEN_BANNER_DOTS_INACTIVE_COLOR,
@@ -96,7 +137,7 @@ class _BannerSectionViewState extends State<BannerSectionView> {
 }
 
 class MovieCategoryTabSectionView extends StatefulWidget {
-  Function(bool) onTappedMovie;
+  Function(bool,int) onTappedMovie;
   MovieCategoryTabSectionView(this.onTappedMovie);
   @override
   State<MovieCategoryTabSectionView> createState() =>
@@ -107,11 +148,44 @@ class _MovieCategoryTabSectionViewState
     extends State<MovieCategoryTabSectionView> {
   var selectedIndex = 0;
 
+  MovieModel? mMovieModel = MovieModelImpl();
+
+  List<MovieVO>? moviesList;
+
+  @override
+  void initState() {
+    super.initState();
+    _getMovieList();
+  }
+
+  void _getMovieList(){
+    if (selectedIndex == 0){
+      mMovieModel?.getNowPlayingMovies(1)?.then((movieList) {
+        setState(() {
+          moviesList = movieList;
+        });
+      }).catchError((error) {
+        debugPrint(error.toString());
+      });
+    }else{
+      mMovieModel?.getCommingSoonMovies(1)?.then((movieList) {
+        setState(() {
+          moviesList = movieList;
+        });
+      }).catchError((error) {
+        debugPrint(error.toString());
+      });
+    }
+
+  }
+
   void _onSelectTabView(int index) {
     setState(() {
       selectedIndex = index;
+      _getMovieList();
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +223,7 @@ class _MovieCategoryTabSectionViewState
           ),
         ),
         SizedBox(height: MARGIN_LARGE),
-        MoviesGridSectionView(selectedIndex == 1 ? true : false,() => this.widget.onTappedMovie(selectedIndex == 1 ? true : false)),
+        MoviesGridSectionView(moviesList,selectedIndex == 1 ? true : false,(movieID) => this.widget.onTappedMovie(selectedIndex == 1 ? true : false , movieID)),
       ],
     );
   }
@@ -186,29 +260,13 @@ class TabItemView extends StatelessWidget {
 }
 
 class MoviesGridSectionView extends StatelessWidget {
-  final List<String> _listItem = [
-    movie1,
-    movie2,
-    movie3,
-    movie4,
-    movie1,
-    movie2,
-    movie3,
-    movie4,
-  ];
-  final List<String> _commingSoonItem = [
-    movie2,
-    movie3,
-    movie1,
-    movie2,
-    movie4,
-    movie3,
-    movie2,
-  ];
-  final Function onTapMovie;
+
+  final Function(int) onTapMovie;
   final bool isCommingSoon;
 
-  MoviesGridSectionView(this.isCommingSoon, this.onTapMovie);
+  final List<MovieVO>? movieList;
+
+  MoviesGridSectionView(this.movieList,this.isCommingSoon, this.onTapMovie);
 
   @override
   Widget build(BuildContext context) {
@@ -217,15 +275,15 @@ class MoviesGridSectionView extends StatelessWidget {
       physics: NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 200,
-          childAspectRatio: 0.7,
+          childAspectRatio: 0.58,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10),
-      itemCount: this.isCommingSoon ? _commingSoonItem.length : _listItem.length,
+      itemCount: movieList?.length ?? 0,
       itemBuilder: (BuildContext context, index) {
         if (this.isCommingSoon == true){
-          return MovieView(_commingSoonItem[index],isCommingSoon,() => this.onTapMovie());
+          return MovieView(movieList?[index],isCommingSoon,(movieID) => this.onTapMovie(movieID));
         }else{
-          return MovieView(_listItem[index],isCommingSoon,() => this.onTapMovie());
+          return MovieView(movieList?[index],isCommingSoon,(movieID) => this.onTapMovie(movieID));
 
         }
       }

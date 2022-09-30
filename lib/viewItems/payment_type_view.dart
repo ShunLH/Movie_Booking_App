@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/vos/payment_type_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/widgets/image_icon_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
-class PaymentType {
-  String name;
-  String imgName;
-  PaymentType(this.name,this.imgName);
-}
-
 class PaymentTypeView extends StatelessWidget {
-
-  final PaymentType paymentType;
+  final PaymentTypeVO paymentType;
   Function onTappedPaymentType;
 
-  PaymentTypeView(this.paymentType,this.onTappedPaymentType);
+  PaymentTypeView(this.paymentType, this.onTappedPaymentType);
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +22,24 @@ class PaymentTypeView extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.white54,width: 1),
+            border: Border.all(color: Colors.white54, width: 1),
             borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
           ),
           child: Row(
             children: [
-              ImageIconView(paymentType.imgName,ICON_MEDIUM_SIZE,Colors.white,),
+              // ImageIconView((paymentType.icon ?? ""),ICON_MEDIUM_SIZE,Colors.white,),
+              Image.network(
+                "${paymentType.icon ?? ""}",
+                width: ICON_MEDIUM_SIZE,
+                height: ICON_MEDIUM_SIZE,
+                color: Colors.white,
+              ),
               SizedBox(width: MARGIN_SMALL),
-              TitleTextView(paymentType.name),
+              TitleTextView(paymentType.title ?? ""),
               Spacer(),
-              Icon(Icons.arrow_forward_ios,color: Colors.white,size: ICON_SMALL_SIZE)
+              Icon(Icons.arrow_forward_ios,
+                  color: Colors.white, size: ICON_SMALL_SIZE)
             ],
-
           ),
         ),
       ),

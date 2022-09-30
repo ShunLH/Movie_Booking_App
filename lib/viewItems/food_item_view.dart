@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/vos/snack_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 
 import '../resources/strings.dart';
 
 class FoodItemView extends StatelessWidget {
-  final String item;
-  final String itemImage;
-  final String itemPrice;
+  final SnackVO? mSnack;
 
-  Function onTappedAddButton;
+  Function(SnackVO) onTappedAddButton;
 
-  FoodItemView(
-      this.item, this.itemImage, this.itemPrice, this.onTappedAddButton);
+  FoodItemView(this.mSnack,this.onTappedAddButton);
+
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +30,12 @@ class FoodItemView extends StatelessWidget {
             padding: EdgeInsets.all(MARGIN_MEDIUM),
             height: SNACK_IMAGE_HEIGHT,
             width: (MediaQuery.of(context).size.width / 2) - 36,
-            child: FnBImageView(itemImage),
+            child: FnBImageView("${mSnack?.image}"),
           ),
           Container(
             width: (MediaQuery.of(context).size.width / 2) - 36,
             child: Text(
-              this.item,
+              "${mSnack?.name}",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: TEXT_CARD_SMALL,
@@ -50,7 +49,7 @@ class FoodItemView extends StatelessWidget {
           Container(
             width: (MediaQuery.of(context).size.width / 2) - 36,
             child: Text(
-              itemPrice,
+              "${mSnack?.price}",
               style: TextStyle(
                 color: THEME_COLOR,
                 fontSize: TEXT_CARD_SMALL,
@@ -59,7 +58,7 @@ class FoodItemView extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () => this.onTappedAddButton(),
+            onPressed: () => this.onTappedAddButton(mSnack!),
             child: Container(
               width: (MediaQuery.of(context).size.width / 2) - 36,
               height: ADD_BUTTON_HEIGHT,

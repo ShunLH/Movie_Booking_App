@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart';
+import 'package:movie_booking_app/data/models/data_repository.dart';
+import 'package:movie_booking_app/data/models/movie_model.dart';
+import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_timeslot_status_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_vo.dart';
+import 'package:movie_booking_app/data/vos/facility_vo.dart';
+import 'package:movie_booking_app/data/vos/timeslot_vo.dart';
 import 'package:movie_booking_app/pages/food_and_beverage_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/strings.dart';
@@ -7,17 +16,68 @@ import 'package:movie_booking_app/widgets/title_text_view.dart';
 
 import '../resources/dummy.dart';
 import '../resources/dimens.dart';
+import '../viewItems/facility_item_view.dart';
 import '../viewItems/playing_dates_view.dart';
 import '../widgets/app_bar_back_button_view.dart';
+import '../widgets/cinema_title_view.dart';
 import '../widgets/icon_text_view.dart';
 
-class MovieTimePage extends StatelessWidget {
+class MovieTimePage extends StatefulWidget {
+  @override
+  State<MovieTimePage> createState() => _MovieTimePageState();
+}
+
+class _MovieTimePageState extends State<MovieTimePage> {
   final List<String> cinemaTypeList = ["2D", "3D", "3D Max", "3D DBox"];
-  final List<String> cinemaList = [
-    "JCGV:Junction City",
-    "JCGV:City Mall",
-    "Mingalar Cinema Gold Class"
-  ];
+  MovieModel mMovieModel = MovieModelImpl();
+  List<DateVO> mDatesList = [];
+  List<CinemaDayTimeslotsVO>? mCinemaTimeSlotsList;
+
+  @override
+  void initState() {
+    super.initState();
+    _generateMovieShowingDatesList();
+    String dateString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _getCinemaAndShowTimeByDate(dateString);
+  }
+
+  void _getCinemaAndShowTimeByDate(String dateString) {
+    print("dateString ${dateString}");
+    mMovieModel
+        .getCinemaAndShowTimeByDate(
+            dataRepository.getAuthorizationToken(), dateString)
+        ?.then((timeSlotsList) {
+      setState(() {
+        mCinemaTimeSlotsList = timeSlotsList;
+      });
+    });
+  }
+
+  void _generateMovieShowingDatesList() {
+    DateTime today = DateTime.now();
+    for (var i = 0; i < 14; i++) {
+      DateTime date = today.add(Duration(days: i));
+      if (i == 0) {
+        mDatesList.add(DateVO(
+            "Today",
+            DateFormat.LLL().format(date),
+            DateFormat.d().format(date),
+            DateFormat('yyyy-MM-dd').format(date)));
+      } else if (i == 1) {
+        mDatesList.add(DateVO(
+            "Tomorrow",
+            DateFormat.LLL().format(date),
+            DateFormat.d().format(date),
+            DateFormat('yyyy-MM-dd').format(date)));
+      } else {
+        mDatesList.add(DateVO(
+            DateFormat.E().format(date),
+            DateFormat.LLL().format(date),
+            DateFormat.d().format(date),
+            DateFormat('yyyy-MM-dd').format(date)));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +86,7 @@ class MovieTimePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: PRIMARY_COLOR,
         title: Container(
-          child: LocationView("Yangon"),
+          child: LocationView(dataRepository.location?.name ?? ""),
         ),
         leading: AppBarBackButtonView(() {
           Navigator.pop(context);
@@ -34,9 +94,7 @@ class MovieTimePage extends StatelessWidget {
         actions: [
           Container(
             padding: EdgeInsets.all(MARGIN_SMALL),
-            child: Icon(
-              Icons.search,
-            ),
+            child: Icon(Icons.search),
           ),
           Container(
             padding: EdgeInsets.all(MARGIN_SMALL),
@@ -52,7 +110,12 @@ class MovieTimePage extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               Container(
-                child: HorizontalMoviePlayingDatesListView(),
+                child: HorizontalMoviePlayingDatesListView(this.mDatesList,
+                    (selectedDate) {
+                  setState(() {
+                    _getCinemaAndShowTimeByDate(selectedDate);
+                  });
+                }),
               ),
               SizedBox(height: MARGIN_MEDIUM),
               CinemaTypeSectionView(cinemaTypeList),
@@ -60,24 +123,16 @@ class MovieTimePage extends StatelessWidget {
               AvaliableStatusSectionView(),
               SizedBox(height: MARGIN_MEDIUM),
               Container(
-                child: ListView.builder(
+                child: ListView.separated(
+                    separatorBuilder: (context, index) => Divider(
+                      color: Colors.white54,
+                    ),
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: cinemaList.length,
+                    itemCount: mCinemaTimeSlotsList?.length ?? 0,
                     itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        child: Column(
-                          children: [
-                            AvaliableCinemaView(cinemaList[index],
-                                () => _navigateToFoodAndBeverageView(context)),
-                            Visibility(
-                              visible:
-                                  index < cinemaList.length - 1 ? true : false,
-                              child: SepartorLineView(Colors.white70),
-                            )
-                          ],
-                        ),
-                      );
+                      return AvaliableCinemaView(mCinemaTimeSlotsList![index]!,
+                          () => _navigateToFoodAndBeverageView(context));
                     }),
               ),
             ],
@@ -121,9 +176,9 @@ class LocationView extends StatelessWidget {
 }
 
 class AvaliableCinemaView extends StatefulWidget {
-  final String title;
+  final CinemaDayTimeslotsVO mCinemaDayTimeSlots;
   Function onTappedMovieTime;
-  AvaliableCinemaView(this.title, this.onTappedMovieTime);
+  AvaliableCinemaView(this.mCinemaDayTimeSlots, this.onTappedMovieTime);
 
   @override
   State<AvaliableCinemaView> createState() => _AvaliableCinemaViewState();
@@ -131,6 +186,15 @@ class AvaliableCinemaView extends StatefulWidget {
 
 class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
   bool isShowDetail = false;
+  CinemaVO? mCinema;
+  @override
+  void initState() {
+    super.initState();
+    int cinemaId = widget.mCinemaDayTimeSlots.cinemaId ?? 0;
+    mCinema = dataRepository.cinemaList
+        ?.where((cinema) => cinema.id == cinemaId)
+        .first;
+  }
 
   void _onTappedShowDetail() {
     setState(() {
@@ -143,48 +207,48 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
     return Container(
       child: Column(
         children: [
-          CinemaTitleView(widget.title, () {
+          CinemaTitleView(widget.mCinemaDayTimeSlots.cinema ?? "_", () {
             _onTappedShowDetail();
           }),
-          Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                IconTextView("Parking", "parking_white.png"),
-                SizedBox(width: MARGIN_MEDIUM),
-                IconTextView("Online Food", "fnb_icon.png"),
-                SizedBox(width: MARGIN_MEDIUM),
-                IconTextView("Wheel Chair", "wheelchair_white.png"),
-              ]),
           SizedBox(
-            height: MARGIN_MEDIUM,
+            width: double.infinity,
+            child: Wrap(
+                direction: Axis.horizontal,
+                spacing: MARGIN_XSMALL,
+                runSpacing: MARGIN_SMALL,
+                alignment: WrapAlignment.start,
+                children: (mCinema?.facilities != null)
+                    ? mCinema!.facilities!.map((facility) {
+                        return FacilityItemView(facility);
+                      }).toList()
+                    : [Container()]),
           ),
+          SizedBox(height: MARGIN_MEDIUM),
           Visibility(
             visible: this.isShowDetail ? true : false,
             child: Column(
               children: [
                 Container(
                   padding: EdgeInsets.all(MARGIN_SMALL),
-                  child: Expanded(
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent:
-                              MediaQuery.of(context).size.width / 3,
-                          childAspectRatio: 1,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: movieTimeSlotList.length,
-                      itemBuilder: (BuildContext context, index) {
-                        return Padding(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
-                          child: MovieTimeView(movieTimeSlotList[index],
-                              () => this.widget.onTappedMovieTime()),
-                        );
-                      },
-                    ),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent:
+                            MediaQuery.of(context).size.width / 3,
+                        childAspectRatio: 1,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10),
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount:
+                        widget.mCinemaDayTimeSlots.timeslots?.length ?? 0,
+                    itemBuilder: (BuildContext context, index) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
+                        child: MovieTimeView(
+                            widget.mCinemaDayTimeSlots.timeslots![index],
+                            () => this.widget.onTappedMovieTime()),
+                      );
+                    },
                   ),
                 ),
                 SizedBox(
@@ -200,126 +264,92 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
   }
 }
 
-class MovieTimeView extends StatelessWidget {
 
-  final MovieTimeSlotVO movieTimeSlot;
+class MovieTimeView extends StatelessWidget {
+  final TimeSlotVO movieTimeSlot;
   Function onTappedMoviewTime;
 
-  Color _getBackgroundColor(AvaliableStatus status){
-    Color bgColor = PRIMARY_COLOR;
-    switch (status) {
-      case AvaliableStatus.ALMOST_FULL :
-        bgColor = MOVIE_TIME_PINK_BORDER_COLOR;
-        break;
-      case AvaliableStatus.AVALIABLE :
-        bgColor = MOVIE_TIME_GREEN_BORDER_COLOR;
-        break;
-      case AvaliableStatus.FILLING_FAST :
-        bgColor = MOVIE_TIME_ORANGE_BORDER_COLOR;
-        break;
-      case AvaliableStatus.NOT_AVALIABLE :
-        bgColor = STATUS_SECTION_COLOR;
-        break;
-    }
-    return bgColor;
-  }
-
-  MovieTimeView(this.movieTimeSlot,this.onTappedMoviewTime);
+  MovieTimeView(this.movieTimeSlot, this.onTappedMoviewTime);
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => onTappedMoviewTime(),
       child: Container(
         decoration: BoxDecoration(
-            color: _getBackgroundColor(this.movieTimeSlot.avaliableStatus).withOpacity(0.15),
-            border: Border.all(color: _getBackgroundColor(this.movieTimeSlot.avaliableStatus), width: 2.0)),
+            color: _getBackgroundColor(this.movieTimeSlot.status ?? 0)
+                .withOpacity(0.15),
+            border: Border.all(
+                color: _getBackgroundColor(this.movieTimeSlot.status ?? 0),
+                width: 2.0)),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(this.movieTimeSlot.time,
-                  style: TextStyle(
-                    color: this.movieTimeSlot.avaliableStatus == AvaliableStatus.NOT_AVALIABLE ? GRAY_TEXT_COLOR : Colors.white,
-                    fontSize: TEXT_REGULAR,
-                  )),
+              TimeslotText(movieTimeSlot, this.movieTimeSlot.startTime ?? ""),
               SizedBox(height: MARGIN_XSMALL),
-              Text(this.movieTimeSlot.cinemaType,
-                  style: TextStyle(
-                    color: this.movieTimeSlot.avaliableStatus == AvaliableStatus.NOT_AVALIABLE ? GRAY_TEXT_COLOR : Colors.white,
-                    fontSize: TEXT_REGULAR,
-                  )),
+              TimeslotText(movieTimeSlot, "2D"),
               SizedBox(height: MARGIN_XSMALL),
-              Text(this.movieTimeSlot.screenType,
-                  style: TextStyle(
-                    color: this.movieTimeSlot.avaliableStatus == AvaliableStatus.NOT_AVALIABLE ? GRAY_TEXT_COLOR : Colors.white,
-                    fontSize: TEXT_REGULAR,
-                  )),
+              TimeslotText(movieTimeSlot, "Screen Type"),
               SizedBox(height: MARGIN_XSMALL),
               Visibility(
-                visible: this.movieTimeSlot.avaliableCount > 0 ? true : false,
-                child: Text("2 Avaliable",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: TEXT_REGULAR,
-                    )),
+                visible: this.movieTimeSlot.status != 0 ? true : false,
+                child: TimeslotText(movieTimeSlot,
+                    _getAvaliableStatus(this.movieTimeSlot.status ?? 0)),
               ),
             ]),
       ),
     );
   }
-}
 
-class SepartorLineView extends StatelessWidget {
-  final Color lineColor;
-  SepartorLineView(@required this.lineColor);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: lineColor,
-      height: MARGIN_LINE_1,
-    );
+  Color _getBackgroundColor(int status) {
+    Color bgColor = PRIMARY_COLOR;
+    CinemaTimeSlotStatusVO? timeSlotStatus = dataRepository
+        .cinemaTimeSlotStatusList
+        ?.where((timeSlotSatus) => timeSlotSatus.id == status)
+        .first;
+    if (timeSlotStatus != null) {
+      return colorFromHex(timeSlotStatus.color ?? "#111111");
+    }
+    return bgColor;
+  }
+
+  String _getAvaliableStatus(int status) {
+    switch (status) {
+      case 1:
+        return "50 Avaliable";
+      case 2:
+        return "20 Avaliable";
+      case 3:
+        return "10 Avaliable";
+      default:
+        return "Avaliable";
+    }
   }
 }
 
-class CinemaTitleView extends StatelessWidget {
-  Function onTapSeeDetail;
-  final String title;
-  CinemaTitleView(this.title, this.onTapSeeDetail);
+class TimeslotText extends StatelessWidget {
+  final TimeSlotVO movieTimeSlot;
+  final String textString;
+  TimeslotText(this.movieTimeSlot, this.textString);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        TitleTextView(title),
-        Spacer(),
-        SeeDetailsButtonView(() => this.onTapSeeDetail())
-      ],
-    );
-  }
-}
-
-class SeeDetailsButtonView extends StatelessWidget {
-  Function onTapSeeDetail;
-  SeeDetailsButtonView(this.onTapSeeDetail);
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        this.onTapSeeDetail();
-      },
-      child: Text(
-        SEE_DETAILS_TITLE,
-        style: TextStyle(
-          decoration: TextDecoration.underline,
-          color: THEME_COLOR,
-        ),
+    return Text(
+      textString,
+      style: TextStyle(
+        color: this.movieTimeSlot.status == 0 ? GRAY_TEXT_COLOR : Colors.white,
+        fontSize: TEXT_REGULAR,
       ),
     );
   }
 }
 
+
+
 class HorizontalMoviePlayingDatesListView extends StatefulWidget {
+  final List<DateVO> mDatesList;
+  Function(String) onTappedDate;
+  HorizontalMoviePlayingDatesListView(this.mDatesList, this.onTappedDate);
   @override
   State<HorizontalMoviePlayingDatesListView> createState() =>
       _HorizontalMoviePlayingDatesListViewState();
@@ -341,12 +371,16 @@ class _HorizontalMoviePlayingDatesListViewState
         height: SCHEDULE_LIST_HEIGHT,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: movieDateList.length,
+          itemCount: widget.mDatesList.length,
           itemBuilder: (BuildContext context, int index) {
             return PlayingDatesView(
-                movieDateList[index],
-                selectedIndex == index ? true : false,
-                () => _onTappedSelectd(index));
+                widget.mDatesList[index], selectedIndex == index ? true : false,
+                () {
+              _onTappedSelectd(index);
+              this
+                  .widget
+                  .onTappedDate(widget.mDatesList[index].dateFormatedString);
+            });
           },
         ));
   }
@@ -389,9 +423,7 @@ class CinemaChipView extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
-          width: MARGIN_MEDIUM,
-        ),
+        SizedBox(width: MARGIN_MEDIUM),
       ],
     );
   }
@@ -404,15 +436,19 @@ class AvaliableStatusSectionView extends StatelessWidget {
       color: STATUS_SECTION_COLOR,
       height: AVALIABLE_STATUS_SECTION_HEIGHT,
       padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          StatusView("Avaliable", THEME_COLOR),
-          Spacer(),
-          StatusView("Filling Fast", Colors.orange),
-          Spacer(),
-          StatusView("Almost Full", Colors.pink),
-        ],
+      child: SizedBox(
+        width: double.infinity,
+        child: Wrap(
+          spacing: MARGIN_MEDIUM,
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: (dataRepository.cinemaTimeSlotStatusList != null)
+              ? dataRepository.cinemaTimeSlotStatusList!.map((timeSlot) {
+                  return StatusView("${timeSlot.title}",
+                      colorFromHex(timeSlot.color ?? "#111111"));
+                }).toList()
+              : [Container()],
+        ),
       ),
     );
   }
@@ -426,24 +462,28 @@ class StatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          Icons.circle,
-          color: statusColor,
-          size: MARGIN_CARD_MEDIUM_1,
-        ),
-        SizedBox(
-          width: MARGIN_CARD_MEDIUM_2,
-        ),
-        Text(
-          statusText,
-          style: TextStyle(
-              color: statusColor,
-              fontSize: TEXT_REGULAR,
-              fontWeight: FontWeight.w600),
-        ),
-      ],
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: MARGIN_SMALL),
+      width: MediaQuery.of(context).size.width / 3 - 30,
+      child: Row(
+        children: [
+          Icon(
+            Icons.circle,
+            color: statusColor,
+            size: MARGIN_CARD_MEDIUM_1,
+          ),
+          SizedBox(
+            width: MARGIN_CARD_MEDIUM_2,
+          ),
+          Text(
+            statusText,
+            style: TextStyle(
+                color: statusColor,
+                fontSize: TEXT_REGULAR,
+                fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 
-class ConfirmSuccessPage extends StatelessWidget {
+class ConfirmSuccessPage extends StatefulWidget {
   const ConfirmSuccessPage({Key? key}) : super(key: key);
 
+  @override
+  State<ConfirmSuccessPage> createState() => _ConfirmSuccessPageState();
+}
+
+class _ConfirmSuccessPageState extends State<ConfirmSuccessPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 5), (){
+      print("Executed after  3 seconds");
+      // Navigator.popUntil(context, (route) => false)
+      Navigator.popUntil(context, ModalRoute.withName('/'));
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Container(

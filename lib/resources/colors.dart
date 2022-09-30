@@ -14,5 +14,8 @@ const CHECKOUT_SCREEN_TICKET_BG_COLOR = Color.fromRGBO(60, 60, 60, 1.0);
 const DARK_GRAY_TEXT_COLOR = Color.fromRGBO(200, 200, 200, 1.0);
 
 
-
+Color colorFromHex(String hexColor) {
+  final hexCode = hexColor.replaceAll('#', '');
+  return Color(int.parse('FF$hexCode', radix: 16));
+}
 

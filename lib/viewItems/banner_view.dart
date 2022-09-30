@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/vos/banner_vo.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
+import 'package:movie_booking_app/widgets/placeholder_image_view.dart';
 
 class BannerView extends StatelessWidget {
-  const BannerView({Key? key}) : super(key: key);
-
+final BannerVO? mBanner;
+BannerView(this.mBanner);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -11,7 +13,7 @@ class BannerView extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
-        child: BannerImageView(),
+        child: BannerImageView(mBanner?.url),
       ),
       // child: Container(
       //   color: Colors.red,
@@ -21,11 +23,17 @@ class BannerView extends StatelessWidget {
 }
 
 class BannerImageView extends StatelessWidget {
+  final String? bannerImage;
+
+  BannerImageView(this.bannerImage);
+
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxwDwzu3trKoh0EtVAHLRvLjmYXVQTDLB8ORj8InCzKVaKcq7HzSl6Ak6noizAvYtImng&usqp=CAU",
+    return (bannerImage != null || bannerImage != "") ? Image.network(
+      "${this.bannerImage}",
       fit: BoxFit.fitHeight,
-    );
+    ) : PlaceholderImageView(100);
   }
 }
+
+

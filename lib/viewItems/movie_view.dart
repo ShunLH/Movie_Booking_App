@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:movie_booking_app/assets.dart';
+import 'package:intl/intl.dart';
+import 'package:movie_booking_app/data/vos/movie_vo.dart';
+import 'package:movie_booking_app/network/api_constants.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import '../resources/dimens.dart';
 import '../widgets/gradient_view.dart';
 
 class MovieView extends StatelessWidget {
-  final String _item;
+  // final String _item;
   final bool isCommingSoon;
-  final Function onTapMovie;
+  final Function(int) onTapMovie;
+  final MovieVO? mMovie;
 
-  MovieView(this._item,this.isCommingSoon,this.onTapMovie);
+  MovieView(this.mMovie,this.isCommingSoon,this.onTapMovie);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +31,7 @@ class MovieView extends StatelessWidget {
             height: MOVIE_LIST_ITEM_HEIGHT,
             child: GestureDetector(
               onTap: () {
-                onTapMovie();
+                onTapMovie(mMovie?.id ?? 0);
               },
               child: Stack(
                 children: [
@@ -36,7 +39,7 @@ class MovieView extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.only(topLeft:Radius.circular(MARGIN_SMALL),topRight: Radius.circular(MARGIN_SMALL)),
                       child: Image.network(
-                        _item,
+                        "$IMAGE_BASE_URL${mMovie?.posterPath}",
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -48,7 +51,7 @@ class MovieView extends StatelessWidget {
                       alignment: Alignment.topRight,
                       child: Visibility(
                         visible: this.isCommingSoon,
-                        child: CommingDateView(),),
+                        child: CommingDateView(mMovie?.releaseDate ?? ""),),
                     )
                   ),
                 ],
@@ -60,15 +63,20 @@ class MovieView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
             child: Row(
               children: [
-                Text(
-                  "Fire Starter",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: TEXT_REGULAR_2X,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    "${mMovie?.title}",
+                    maxLines: 2,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: TEXT_REGULAR_2X,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-                Spacer(),
+                SizedBox(
+                  height: MARGIN_SMALL,
+                ),
                 Row(
                   children: [
                     Container(
@@ -135,7 +143,15 @@ class MovieView extends StatelessWidget {
 }
 
 class CommingDateView extends StatelessWidget {
+  final String releaseDate;
+  CommingDateView(this.releaseDate);
 
+  String _convertReleaseDateText(commingDate) {
+    DateTime comming = DateTime.parse(commingDate);
+    String day = DateFormat.d().format(comming);
+    String month = DateFormat.LLL().format(comming);
+    return "${day}th\n${month.toUpperCase()}";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,13 +162,15 @@ class CommingDateView extends StatelessWidget {
         color: THEME_COLOR,
         borderRadius: BorderRadius.all(Radius.circular(MARGIN_XSMALL)),
       ),
-      child: Text(
-        "8th\nAug",
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: PRIMARY_COLOR,
-          fontSize: 10,
-          fontWeight: FontWeight.w400,
+      child: Center(
+        child: Text(
+          "${_convertReleaseDateText(releaseDate)}",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: PRIMARY_COLOR,
+            fontSize: 10,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ),
     );

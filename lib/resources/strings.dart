@@ -1,14 +1,25 @@
 import 'package:movie_booking_app/viewItems/payment_type_view.dart';
 
 import 'dummy.dart';
+const NAVIGATION_ICON_ASSETS_URL = "assets/images/navigation_green.png";
+const IMDG_IMAGE_ASSETS_URL = "assets/images/imdb_icon.png";
+
+const MOVIES_TITLE = "Movies";
+const CINEMAS_TITLE = "Cinema";
+const TICKETS_TITLE = "Tickets";
+const PROFILE_TITLE = "Profile";
 
 const VERIFY_YOUR_PHONE_NUMBER = "Verify Your Phone Number";
 const SEND_6DIGIT_NUMBER_CODE_MESSAGE = "We will send 6-digit sms code to verify your phone number";
 const COUNTRY_CODE = "Country Code";
 const MOBILE_NUMBER = "Mobile number";
 const CONTINUE_WITH_GOOGLE = "Continue With Google";
+const WE_SENT_OTP_CODE_MESSAGE = "We’ve sent OTP Code";
+const ENTER_OTP_CODE_MESSAGE = "Please enter 6-digit OTP code that sent to your phone number.";
+const CONFIRM_OTP = "Confirm OTP";
 const ACCEPT_TERMS_AND_CONDITION = "By clicking, I accept the Terms & Conditions & Privacy Plolicy";
 const PICK_REGION = "Pick Region";
+const SKIP = "Skip";
 
 const NOW_PLAYING_TITLE = "Now Showing";
 const COMMING_SOON_TITLE = "Comming Soon";
@@ -32,6 +43,11 @@ const CHOOSE_PAYMENT_TYPE = "Choose your payment type";
 final List<String> tabsList = [NOW_PLAYING_TITLE,COMMING_SOON_TITLE];
 
 const CANCELLATION_RULES = "1. Refund not available for Convenience fees,Vouchers, Gift Cards, Taxes etc. \n\n2. No cancelation within 20minute of show start time. ";
+
+const PRICE_RANGE_TITLE = "Price Range";
+const CINEMA_DETAIL = "Cinema Details";
+const FACILITIES_TITLE = "Facilities";
+
 final List<String> loginMenuList = [
   "Purchae History",
   "Offer",
@@ -40,12 +56,4 @@ final List<String> loginMenuList = [
   "Payment",
   "Help and Support",
   "Logout"
-];
-final List<DateVO> movieDateList = [
-  DateVO("Today","Aug","27"),
-  DateVO("Tomorrow","Aug","28"),
-  DateVO("Mon","Aug","28"),
-  DateVO("Tue","Aug","29"),
-  DateVO("Wed","Aug","30"),
-  DateVO("Fri","Aug","31"),
 ];

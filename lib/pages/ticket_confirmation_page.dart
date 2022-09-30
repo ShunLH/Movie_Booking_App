@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:movie_booking_app/assets.dart';
-import 'package:movie_booking_app/pages/checkout_page.dart';
 import 'package:movie_booking_app/pages/confirm_success_page.dart';
-import 'package:movie_booking_app/pages/movie_time_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 import 'package:movie_booking_app/viewItems/date_time_location_view.dart';
+import 'package:movie_booking_app/widgets/separator_line_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
 import '../widgets/corner_separator_view.dart';

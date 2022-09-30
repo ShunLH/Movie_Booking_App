@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:movie_booking_app/pages/movie_time_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/widgets/image_icon_view.dart';
+import 'package:movie_booking_app/widgets/separator_line_view.dart';
 import '../resources/dimens.dart';
 
 

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:movie_booking_app/assets.dart';
+import 'package:movie_booking_app/data/models/movie_model.dart';
+import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/credit_vo.dart';
+import 'package:movie_booking_app/data/vos/movie_vo.dart';
+import 'package:movie_booking_app/network/api_constants.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
@@ -10,10 +14,39 @@ import '../viewItems/cast_view.dart';
 import '../widgets/design_button_view.dart';
 import 'movie_time_page.dart';
 
-class MovieDetailsPage extends StatelessWidget {
+class MovieDetailsPage extends StatefulWidget {
   final bool isCommingSoon;
-  final List<String> genreList = ["Action", "Adventure", "Romance", "Comedy"];
-  MovieDetailsPage(this.isCommingSoon);
+  final int movieId;
+
+  MovieDetailsPage({required this.isCommingSoon, required this.movieId});
+
+  @override
+  State<MovieDetailsPage> createState() => _MovieDetailsPageState();
+}
+
+class _MovieDetailsPageState extends State<MovieDetailsPage> {
+  MovieModel? mMovieModel = MovieModelImpl();
+  MovieVO? mMovie;
+  List<CreditVO>? mActorsList;
+
+  @override
+  void initState() {
+    super.initState();
+    print("movie id ===> ${widget.movieId}");
+    mMovieModel?.getMovieDetails(widget.movieId)?.then((movie) {
+      setState(() {
+        this.mMovie = movie;
+      });
+    });
+
+    mMovieModel?.getCreditsByMovie(widget.movieId)?.then((creditsList) {
+      setState(() {
+        this.mActorsList =
+            creditsList.where((credit) => credit.isActor()).toList();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +58,7 @@ class MovieDetailsPage extends StatelessWidget {
               child: CustomScrollView(
                 slivers: [
                   MovieDetailSliverAppBarView(
-                      genreList, () => Navigator.pop(context)),
+                      mMovie, () => Navigator.pop(context)),
                   SliverList(
                     delegate: SliverChildListDelegate(
                       [
@@ -35,22 +68,22 @@ class MovieDetailsPage extends StatelessWidget {
                               right: MARGIN_MEDIUM,
                               top: MARGIN_LARGE,
                               bottom: MARGIN_LARGE),
-                          child: AboutFlimSectionView(),
+                          child: AboutFlimSectionView(mMovie),
                         ),
                         Visibility(
-                          visible: isCommingSoon,
-                          child: CommingSoonView(),
+                          visible: widget.isCommingSoon,
+                          child: CommingSoonView(mMovie),
                         ),
                         Container(
                           margin:
                               EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
-                          child: StoryLineSection(),
+                          child: StoryLineSection(mMovie),
                         ),
                         SizedBox(height: MARGIN_MEDIUM),
                         Container(
                           margin:
                               EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
-                          child: CastSectionView(),
+                          child: CastSectionView(mActorsList),
                         ),
                       ],
                     ),
@@ -64,7 +97,7 @@ class MovieDetailsPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: MARGIN_LARGE),
               child: Visibility(
-                visible: !isCommingSoon,
+                visible: !widget.isCommingSoon,
                 child: BookingButtonView(
                     () => this._navigateToMovieTimePage(context)),
               ),
@@ -85,6 +118,19 @@ class MovieDetailsPage extends StatelessWidget {
 }
 
 class CommingSoonView extends StatelessWidget {
+  final MovieVO? mMovie;
+  CommingSoonView(this.mMovie);
+
+  int _calculateReleaseDay(String releaseDate) {
+    DateTime today = DateTime.now();
+    DateTime release = DateTime.parse(releaseDate);
+    final difference = today.difference(release).inDays;
+
+    print("$release");
+
+    return difference;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -112,7 +158,11 @@ class CommingSoonView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    RegularBoldTextView("Releasing in 5 days", Colors.white),
+                    RegularBoldTextView(
+                        (mMovie?.releaseDate != null)
+                            ? "Releasing in ${_calculateReleaseDay(mMovie?.releaseDate ?? "")} days"
+                            : "Releasing Soon",
+                        Colors.white),
                     SizedBox(height: MARGIN_MEDIUM),
                     Wrap(children: [
                       RegularNormalTextView(
@@ -192,6 +242,8 @@ class NotificationButtonView extends StatelessWidget {
 }
 
 class CastSectionView extends StatelessWidget {
+  final List<CreditVO>? castsList;
+  CastSectionView(this.castsList);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -200,10 +252,7 @@ class CastSectionView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TitleTextView(CAST_TITLE),
-          SizedBox(
-            height: MARGIN_MEDIUM,
-          ),
-          HorizontalCastListView(),
+          HorizontalCastListView(castsList),
         ],
       ),
     );
@@ -211,21 +260,45 @@ class CastSectionView extends StatelessWidget {
 }
 
 class HorizontalCastListView extends StatelessWidget {
+  final List<CreditVO>? castsList;
+  HorizontalCastListView(this.castsList);
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: CASTS_LIST_HEIGHT,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 6,
+      child: GridView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: MediaQuery.of(context).size.width/4,
+              childAspectRatio: 0.7,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8),
+          itemCount: castsList?.length ?? 0,
           itemBuilder: (BuildContext context, int index) {
-            return CastView(castImg);
-          },
-        ));
+            return Column(
+              children: [
+                CastView(castsList?[index].profilePath ?? ""),
+                SizedBox(height: MARGIN_SMALL),
+                Expanded(
+                  child: Text(
+                    castsList?[index].originalName ?? "",
+                    textAlign: TextAlign.center,
+                    style:
+                        TextStyle(color: Colors.white, fontSize: TEXT_REGULAR),
+                  ),
+                )
+              ],
+            );
+          }),
+    );
   }
 }
 
 class AboutFlimSectionView extends StatelessWidget {
+  final MovieVO? mMovie;
+
+  AboutFlimSectionView(this.mMovie);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -242,18 +315,24 @@ class AboutFlimSectionView extends StatelessWidget {
           ),
           AboutFlimInfoView(
             "Release Date",
-            "Aug 8th,2022",
+            "${mMovie?.releaseDate}",
           ),
           SizedBox(
             width: MARGIN_SMALL,
           ),
           AboutFlimInfoView(
             "Duration",
-            "2hr 30min",
+            _MovieDuartion(mMovie?.runtime ?? 0.0),
           ),
         ],
       ),
     );
+  }
+
+  String _MovieDuartion(runtime) {
+    int hr = (runtime / 60).toInt();
+    var min = (runtime % 60).toInt();
+    return "$hr hr" + "${(min > 0) ? "$min min" : ""}";
   }
 }
 
@@ -302,6 +381,8 @@ class AboutFlimInfoView extends StatelessWidget {
 }
 
 class StoryLineSection extends StatelessWidget {
+  final MovieVO? mMovie;
+  StoryLineSection(this.mMovie);
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -311,17 +392,19 @@ class StoryLineSection extends StatelessWidget {
         SizedBox(
           height: MARGIN_MEDIUM,
         ),
-        StoryLineView(),
+        StoryLineView(mMovie?.overview ?? ""),
       ],
     );
   }
 }
 
 class StoryLineView extends StatelessWidget {
+  final String movieDesc;
+  StoryLineView(this.movieDesc);
   @override
   Widget build(BuildContext context) {
     return Text(
-      "Professor Albus Dumbledore knows the powerful, dark wizard Gellert Grindelwald is moving to seize control of the wizarding world. Unable to stop him alone, he entrusts magizoologist Newt Scamander to lead an intrepid team of wizards and witches. They soon encounter an array of old and new beasts as they clash with Grindelwald's growing legion of followers.",
+      "$movieDesc",
       style: TextStyle(
         color: Colors.white,
         fontSize: TEXT_REGULAR,
@@ -331,9 +414,9 @@ class StoryLineView extends StatelessWidget {
 }
 
 class MovieNameAndGenreView extends StatelessWidget {
-  final List<String> genreList;
+  final MovieVO? mMovie;
 
-  MovieNameAndGenreView(this.genreList);
+  MovieNameAndGenreView(this.mMovie);
 
   @override
   Widget build(BuildContext context) {
@@ -342,29 +425,35 @@ class MovieNameAndGenreView extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(
-              "West World",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: TEXT_REGULAR_2X,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: Container(
+                width: 140,
+                child: Text(
+                  "${mMovie?.originalTitle ?? ""}",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: TEXT_REGULAR_2X,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
             SizedBox(
               width: MARGIN_LARGE,
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
                   width: IMDB_ICON_WIDTH,
                   height: IMDB_ICON_HEIGHT,
                   child: Image.asset(
-                    "assets/images/imdb_icon.png",
+                    IMDG_IMAGE_ASSETS_URL,
                     fit: BoxFit.fill,
                   ),
                 ),
                 Text(
-                  "9.0",
+                  "${(mMovie?.voteAverage ?? 0).toStringAsPrecision(2)}",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: TEXT_REGULAR,
@@ -389,9 +478,13 @@ class MovieNameAndGenreView extends StatelessWidget {
         ),
         Wrap(
           direction: Axis.horizontal,
-          spacing: MARGIN_SMALL,
+          spacing: MARGIN_XSMALL,
           alignment: WrapAlignment.start,
-          children: genreList.map((genre) => GenreChipView(genre)).toList(),
+          children: (mMovie?.genres != null)
+              ? mMovie!.genres!
+                  .map((genre) => GenreChipView(genre.name ?? ""))
+                  .toList()
+              : [Container()],
         ),
       ],
     );
@@ -420,10 +513,10 @@ class GenreChipView extends StatelessWidget {
 }
 
 class MovieDetailSliverAppBarView extends StatelessWidget {
-  final List<String> genreList;
+  final MovieVO? mMovie;
 
   final Function onTapBack;
-  MovieDetailSliverAppBarView(this.genreList, this.onTapBack);
+  MovieDetailSliverAppBarView(this.mMovie, this.onTapBack);
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
@@ -439,7 +532,8 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: MOVIE_DETAIL_IMAGE_HEIGHT,
-                    child: MovieDetailAppBarImageVIew(),
+                    child:
+                        MovieDetailAppBarImageVIew(mMovie?.backDropPath ?? ""),
                   ),
                   Spacer(),
                 ],
@@ -483,10 +577,17 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
                 // child: MovieDetailAppBarInfoView(),
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.3,
-                  child: Image.network(
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaejpX80-gQhdc2S8zvpJaxWUGZMHOO7nsNsV1tm0IMj0gmCy5xaiLN5qYR01C8HrT54U&usqp=CAU",
-                    fit: BoxFit.cover,
-                  ),
+                  child: (mMovie?.posterPath != null)
+                      ? Image.network(
+                          "${IMAGE_BASE_URL}${mMovie?.posterPath}",
+                          fit: BoxFit.cover,
+                        )
+                      : Center(
+                          child: Icon(
+                          Icons.image_outlined,
+                          size: MARGIN_XXLARGE,
+                          color: Colors.white,
+                        )),
                 ),
               ),
             ),
@@ -495,7 +596,7 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
               child: Container(
                 width: MediaQuery.of(context).size.width * 0.6,
                 height: GENERE_CHIP_VIEW_HEIGHT,
-                child: MovieNameAndGenreView(genreList),
+                child: MovieNameAndGenreView(mMovie),
               ),
             )
           ],
@@ -506,6 +607,8 @@ class MovieDetailSliverAppBarView extends StatelessWidget {
 }
 
 class MovieDetailAppBarInfoView extends StatelessWidget {
+  final MovieVO? mMovie;
+  MovieDetailAppBarInfoView(this.mMovie);
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -514,7 +617,7 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
       children: [
         Row(
           children: [
-            MovieDetailsYearView(),
+            MovieDetailsYearView(mMovie?.releaseDate ?? ""),
             Spacer(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -526,7 +629,7 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
                       Icons.star,
                     ),
                     SizedBox(height: MARGIN_SMALL),
-                    Text("38876 VOTES"),
+                    Text("${mMovie?.voteCount ?? 0} VOTES"),
                     SizedBox(
                       height: MARGIN_CARD_MEDIUM_2,
                     )
@@ -534,7 +637,7 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
                 ),
                 SizedBox(width: MARGIN_MEDIUM),
                 Text(
-                  "9,76",
+                  "${(mMovie?.popularity ?? 0).round()}",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -546,7 +649,7 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
         ),
         SizedBox(height: MARGIN_MEDIUM),
         Text(
-          "The Secrets of Dumbledore",
+          "${mMovie?.originalTitle ?? ""}",
           style: TextStyle(
             color: Colors.white,
             fontSize: TEXT_HEADING_2X,
@@ -559,9 +662,9 @@ class MovieDetailAppBarInfoView extends StatelessWidget {
 }
 
 class MovieDetailsYearView extends StatelessWidget {
-  const MovieDetailsYearView({
-    Key? key,
-  }) : super(key: key);
+  final String mReleaseDate;
+
+  MovieDetailsYearView(this.mReleaseDate);
 
   @override
   Widget build(BuildContext context) {
@@ -574,7 +677,7 @@ class MovieDetailsYearView extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          "2016",
+          "${mReleaseDate.substring(mReleaseDate.length - 4)}",
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -621,19 +724,30 @@ class BackButtonView extends StatelessWidget {
 }
 
 class MovieDetailAppBarImageVIew extends StatelessWidget {
+  final String movieImageURl;
+  MovieDetailAppBarImageVIew(this.movieImageURl);
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      "https://cms.dmpcdn.com/moviearticle/2022/04/13/56fb4fc0-bb49-11ec-8f2e-f393db1d7b77_webp_original.jpg",
-      fit: BoxFit.cover,
-    );
+    return (movieImageURl != "")
+        ? Image.network(
+            "${IMAGE_BASE_URL}${movieImageURl}",
+            fit: BoxFit.cover,
+          )
+        : Center(
+            child: Icon(
+            Icons.image_outlined,
+            size: MARGIN_XXLARGE,
+            color: Colors.white,
+          ));
   }
 }
+
 class BookingButtonView extends StatelessWidget {
   Function onTappedBooking;
   BookingButtonView(this.onTappedBooking);
   @override
   Widget build(BuildContext context) {
-    return DesignButtonView("Booking", THEME_COLOR, () => this.onTappedBooking());
+    return DesignButtonView(
+        "Booking", THEME_COLOR, () => this.onTappedBooking());
   }
 }

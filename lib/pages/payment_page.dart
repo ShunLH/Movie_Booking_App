@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/models/data_repository.dart';
+import 'package:movie_booking_app/data/models/movie_model.dart';
+import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/payment_type_vo.dart';
 import 'package:movie_booking_app/pages/ticket_confirmation_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
@@ -7,16 +11,26 @@ import 'package:movie_booking_app/widgets/image_icon_view.dart';
 import 'package:movie_booking_app/viewItems/payment_type_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
-class PaymentPage extends StatelessWidget {
-  final List<PaymentType> paymentTypes = [
-    PaymentType("UPI", "upi.png"),
-    PaymentType("Gift Voucher", "gift_voucher.png"),
-    PaymentType("Quick Pay", "quick_pay.png"),
-    PaymentType("Credit Card / Debit Card", "credit_card.png"),
-    PaymentType("Redeem Point", "redeem_point.png"),
-    PaymentType("Mobile Wallet", "mobile_wallet.png"),
-    PaymentType("Net Banking", "net_banking.png"),
-  ];
+class PaymentPage extends StatefulWidget {
+  @override
+  State<PaymentPage> createState() => _PaymentPageState();
+}
+
+class _PaymentPageState extends State<PaymentPage> {
+  MovieModel mMovieModel = MovieModelImpl();
+  DataRepository dataRepository = DataRepository();
+
+  List<PaymentTypeVO>? paymentTypes;
+
+  @override
+  void initState() {
+    super.initState();
+    mMovieModel.getPaymentTypes(dataRepository.getAuthorizationToken())?.then((paymentTypesList) {
+      setState(() {
+        this.paymentTypes = paymentTypesList;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,10 +93,10 @@ class PaymentPage extends StatelessWidget {
             //     }),
             SizedBox(height: MARGIN_MEDIUM),
             Container(
-              child: Column(
-                  children: paymentTypes
+              child: (paymentTypes != null) ? Column(
+                  children: paymentTypes!
                       .map((item) => PaymentTypeView(item,() => this._navigateToTicketConfirmation(context)))
-                      .toList()),
+                      .toList()) : Container(),
             ),
           ],
         ),
@@ -90,6 +104,7 @@ class PaymentPage extends StatelessWidget {
 
     );
   }
+
   void _navigateToTicketConfirmation(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => TicketConfirmationPage(),
