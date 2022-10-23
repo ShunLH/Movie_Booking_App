@@ -9,7 +9,8 @@ class SnackBottomSheetView extends StatefulWidget {
 
   final List<SnackVO> foodItemList;
   Function onChangeQuantity;
-  SnackBottomSheetView(this.foodItemList,this.onChangeQuantity);
+  Function onTappedContinueButton;
+  SnackBottomSheetView(this.foodItemList, {required this.onChangeQuantity,required this.onTappedContinueButton});
 
   @override
   State<SnackBottomSheetView> createState() => _SnackBottomSheetViewState();
@@ -42,7 +43,7 @@ class _SnackBottomSheetViewState extends State<SnackBottomSheetView> {
             })).toList()
           ),
           SizedBox(height: MARGIN_MEDIUM_2,),
-          FnBBottomTotalPriceButtonView(totalPrice)
+          FnBBottomTotalPriceButtonView(totalPrice,() {this.widget.onTappedContinueButton;})
         ],
       ),
     );

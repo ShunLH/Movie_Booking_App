@@ -14,6 +14,11 @@ import 'package:movie_booking_app/data/vos/snack_vo.dart';
 import 'package:movie_booking_app/network/responses/basic_response.dart';
 import 'package:movie_booking_app/network/responses/sign_in_response.dart';
 
+import '../../network/responses/get_checkout_response.dart';
+import '../vos/checkout_request_vo.dart';
+import '../vos/ticket_vo.dart';
+import '../vos/user_vo.dart';
+
 abstract class MovieModel {
   Future<List<MovieVO>>? getNowPlayingMovies(int page);
   Future<List<MovieVO>>? getCommingSoonMovies(int page);
@@ -33,5 +38,27 @@ abstract class MovieModel {
   Future<List<CinemaVO>>? getCinemasList(String? latestTime);
   Future<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDate(String authorizationToken,String date);
   Future<List<SeatVO>>? getSeatingPlanByShowTime(String authorizationToken,int cinemaDayTimeId,String bookingDate);
+  Future<GetCheckOutResponse>? requestCheckout(String authorizationToken,CheckOutRequestVO checkoutRequestBody);
+
+  /// Database
+  Future<List<MovieVO>>? getNowPlayingMoviesFromDatabase();
+  Future<List<MovieVO>>? getCommingSoonMoviesFromDatabase();
+  Future<List<GenreVO>>? getGenresFromDatabase();
+  Future<MovieVO>? getMovieDetailsFromDatabase(int movieId);
+  Future<List<BannerVO>>? getBannersFromDatabase();
+  Future<List<CityVO>>? getCitiesFromDatabase();
+  Future<List<CinemaVO>>? getCinemasFromDatabase();
+  Future<List<SnackVO>>? getSnacksListFromDatabase(int? categoryId);
+  Future<List<SnackCategoryVO>>? getSnackCategoriesListFromDatabase();
+  Future<List<PaymentTypeVO>>? getPaymentTypesFromDatabase();
+  Future<List<ConfigDataVO>>? getConfigsCinemaTimeSlotsFromDatabase();
+  Future<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDateFromDatabase(String date);
+  UserVO? getLoginUser();
+  String getTokenFromDatabase();
+
+
+
+
+
 
 }

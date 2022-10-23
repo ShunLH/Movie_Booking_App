@@ -1,6 +1,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:movie_booking_app/data/vos/banner_vo.dart';
+import 'package:movie_booking_app/data/vos/checkout_request_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/city_vo.dart';
@@ -12,9 +13,11 @@ import 'package:movie_booking_app/data/vos/payment_type_vo.dart';
 import 'package:movie_booking_app/data/vos/seat_vo.dart';
 import 'package:movie_booking_app/data/vos/snack_category_vo.dart';
 import 'package:movie_booking_app/data/vos/snack_vo.dart';
+import 'package:movie_booking_app/data/vos/ticket_vo.dart';
 import 'package:movie_booking_app/network/dataagents/movie_data_agent.dart';
 import 'package:movie_booking_app/network/padc_movie_api.dart';
 import 'package:movie_booking_app/network/responses/basic_response.dart';
+import 'package:movie_booking_app/network/responses/get_checkout_response.dart';
 import 'package:movie_booking_app/network/responses/sign_in_response.dart';
 import 'package:movie_booking_app/network/the_movie_api.dart';
 
@@ -160,6 +163,11 @@ class RetrofitDataAgentImpl extends MovieDataAgent {
   Future<List<SnackCategoryVO>>? getSnackCategoriesList(String authorizationToken) {
     return padcApi?.getSnackCategoriesList(authorizationToken).asStream().map((responses) => responses.data ?? []).first;
 
+  }
+
+  @override
+  Future<GetCheckOutResponse>? requestCheckout(String authorizationToken, CheckOutRequestVO checkoutRequestBody) {
+    return padcApi?.requestCheckOut(authorizationToken, checkoutRequestBody)?.asStream().map((responses) => responses).first;
   }
 
 }

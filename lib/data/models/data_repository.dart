@@ -18,9 +18,9 @@ class DataRepository {
 
   DataRepository._internal() {}
 
-  String getAuthorizationToken() {
-    return "Bearer ${token}";
-  }
+  // String getAuthorizationToken() {
+  //   return "Bearer ${token}";
+  // }
 }
 
 DataRepository dataRepository = DataRepository();

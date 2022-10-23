@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:movie_booking_app/data/models/data_repository.dart';
 import 'package:movie_booking_app/data/models/movie_model.dart';
 import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/snack_category_vo.dart';
 import 'package:movie_booking_app/data/vos/snack_vo.dart';
+import 'package:movie_booking_app/data/vos/timeslot_vo.dart';
 import 'package:movie_booking_app/pages/checkout_page.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
@@ -11,10 +13,19 @@ import 'package:movie_booking_app/viewItems/fnb_sub_total_price_view.dart';
 import 'package:movie_booking_app/viewItems/food_item_view.dart';
 import 'package:movie_booking_app/viewItems/snack_bottom_sheet_view.dart';
 
+import '../data/vos/cinema_day_timeslots_vo.dart';
+import '../data/vos/date_vo.dart';
+import '../data/vos/movie_vo.dart';
 import '../resources/colors.dart';
 import '../widgets/app_bar_back_button_view.dart';
 
 class FoodAndBeveragePage extends StatefulWidget {
+  final MovieVO? mMovie;
+  final CinemaVO? mCinema;
+  final CinemaDayTimeslotsVO? mCinemaTimeSlot;
+  final TimeSlotVO? cinemaDayTimeSlot;
+  final String? bookingDate;
+  FoodAndBeveragePage(this.mMovie, this.mCinema, this.mCinemaTimeSlot,this.cinemaDayTimeSlot,this.bookingDate);
   @override
   State<FoodAndBeveragePage> createState() => _FoodAndBeveragePageState();
 }
@@ -24,7 +35,7 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
   MovieModel mMovieModel = MovieModelImpl();
   List<SnackVO>? mSncaksList;
   List<SnackCategoryVO>? mSncakCategoriesList;
-  Set<SnackVO>? addedSnacksList = {};
+  Set<SnackVO>? orderedSnacksList = {};
   int totalPrice = 0;
 
   @override
@@ -33,7 +44,17 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
     SnackCategoryVO allCategories =
         SnackCategoryVO(null, "All", "All Categories", 0, "", "", "");
     mMovieModel
-        .getSnackCategoriesList(dataRepository.getAuthorizationToken())
+        .getSnackCategoriesList(mMovieModel.getTokenFromDatabase())
+        ?.then((snackCategories) {
+      setState(() {
+        mSncakCategoriesList = snackCategories;
+        mSncakCategoriesList?.insert(0, allCategories);
+        _getSnackListByCategory(null);
+      });
+    });
+
+    mMovieModel
+        .getSnackCategoriesListFromDatabase()
         ?.then((snackCategories) {
       setState(() {
         mSncakCategoriesList = snackCategories;
@@ -45,7 +66,14 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
 
   void _getSnackListByCategory(int? categoryId) {
     mMovieModel
-        .getSnacksList(dataRepository.getAuthorizationToken(), categoryId)
+        .getSnacksList(mMovieModel.getTokenFromDatabase(), categoryId)
+        ?.then((snacksList) {
+      setState(() {
+        mSncaksList = snacksList;
+      });
+    });
+    mMovieModel
+        .getSnacksListFromDatabase(categoryId)
         ?.then((snacksList) {
       setState(() {
         mSncaksList = snacksList;
@@ -53,10 +81,10 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
     });
   }
 
-  void _calcTotalPrice(){
+  void _calcTotalPrice() {
     int total = 0;
-    this.addedSnacksList?.forEach((element) {
-     total += (element.price ?? 0) * (element.quantity ?? 1);
+    this.orderedSnacksList?.forEach((element) {
+      total += (element.price ?? 0) * (element.quantity ?? 1);
     });
     setState(() {
       totalPrice = total;
@@ -105,8 +133,8 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
                         itemBuilder: (BuildContext context, index) {
                           return FoodItemView(mSncaksList?[index], (snack) {
                             setState(() {
-                              snack.quantity += 1;
-                              this.addedSnacksList?.add(snack);
+                              snack.quantity = (snack.quantity ?? 0) + 1;
+                              this.orderedSnacksList?.add(snack);
                             });
                             _calcTotalPrice();
                             this._onTappedAddButton(context);
@@ -126,7 +154,9 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
                     onTap: () {
                       this._onTappedAddButton(context);
                     },
-                    child: FnBBottomTotalPriceButtonView(totalPrice)),
+                    child: FnBBottomTotalPriceButtonView(totalPrice,() {
+                      this._navigateToCheckOutPage(context);
+                    })),
               ),
             )
           ],
@@ -139,7 +169,14 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => CheckOutPage(),
+          builder: (context) => CheckOutPage(
+            mMovie: this.widget.mMovie,
+            mCinema: this.widget.mCinema,
+            mSnackList: this.orderedSnacksList?.toList(),
+            mCinemaTimeSlot: this.widget.mCinemaTimeSlot,
+            cinemaTimeSlot: this.widget.cinemaDayTimeSlot,
+            bookingDate: this.widget.bookingDate,
+          ),
         ));
   }
 
@@ -147,7 +184,8 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         context: context,
-        builder: (context) => SnackBottomSheetView(this.addedSnacksList?.toList() ?? [],() => _calcTotalPrice()));
+        builder: (context) => SnackBottomSheetView(
+            this.orderedSnacksList?.toList() ?? [], onChangeQuantity: () => _calcTotalPrice(),onTappedContinueButton: () => _navigateToCheckOutPage(context),));
   }
 }
 
@@ -189,7 +227,6 @@ class SearchActionView extends StatelessWidget {
 }
 
 class SnackTitleTextView extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return Container(

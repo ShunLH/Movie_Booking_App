@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_booking_app/viewItems/profile_menu_item_view.dart';
 
-class DateVO {
-  String title;
-  String month;
-  String day;
-  String dateFormatedString;
-  DateVO(this.title, this.month, this.day,this.dateFormatedString);
-}
+
 
 enum AvaliableStatus { AVALIABLE, FILLING_FAST, ALMOST_FULL, NOT_AVALIABLE }
 

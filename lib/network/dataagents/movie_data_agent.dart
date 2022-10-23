@@ -1,5 +1,6 @@
 
 import 'package:movie_booking_app/data/vos/banner_vo.dart';
+import 'package:movie_booking_app/data/vos/checkout_request_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/city_vo.dart';
@@ -14,6 +15,8 @@ import 'package:movie_booking_app/network/responses/basic_response.dart';
 import 'package:movie_booking_app/network/responses/sign_in_response.dart';
 
 import '../../data/vos/movie_vo.dart';
+import '../../data/vos/ticket_vo.dart';
+import '../responses/get_checkout_response.dart';
 
 abstract class MovieDataAgent {
   Future<List<MovieVO>>? getNowPlayingMovies(int page);
@@ -36,6 +39,7 @@ abstract class MovieDataAgent {
   Future<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDate(String authorizationToken,String date);
   Future<List<SeatVO>>? getSeatingPlanByShowTime(String authorizationToken,int cinemaDayTimeId,String bookingDate);
 
+  Future<GetCheckOutResponse>? requestCheckout(String authorizationToken,CheckOutRequestVO checkoutRequestBody);
 
 
 

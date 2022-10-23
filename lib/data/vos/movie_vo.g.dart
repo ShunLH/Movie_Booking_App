@@ -3,6 +3,125 @@
 part of 'movie_vo.dart';
 
 // **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class MovieVOAdapter extends TypeAdapter<MovieVO> {
+  @override
+  final int typeId = 7;
+
+  @override
+  MovieVO read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return MovieVO(
+      fields[0] as bool?,
+      fields[1] as String?,
+      (fields[2] as List?)?.cast<int>(),
+      fields[3] as CollectionVO?,
+      fields[4] as double?,
+      (fields[5] as List?)?.cast<GenreVO>(),
+      fields[6] as String?,
+      fields[7] as int?,
+      fields[8] as String?,
+      fields[9] as String?,
+      fields[10] as String?,
+      fields[11] as String?,
+      fields[12] as double?,
+      fields[13] as String?,
+      (fields[14] as List?)?.cast<ProductionCompaniesVO>(),
+      (fields[15] as List?)?.cast<ProductionCountriesVO>(),
+      fields[16] as String?,
+      fields[17] as double?,
+      fields[18] as double?,
+      (fields[19] as List?)?.cast<SpokenLanguagesVO>(),
+      fields[20] as String?,
+      fields[21] as String?,
+      fields[22] as String?,
+      fields[23] as bool?,
+      fields[24] as double?,
+      fields[25] as int?,
+      fields[26] as bool?,
+      fields[27] as bool?,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, MovieVO obj) {
+    writer
+      ..writeByte(28)
+      ..writeByte(0)
+      ..write(obj.adult)
+      ..writeByte(1)
+      ..write(obj.backDropPath)
+      ..writeByte(2)
+      ..write(obj.genreIds)
+      ..writeByte(3)
+      ..write(obj.belongsToCollection)
+      ..writeByte(4)
+      ..write(obj.budget)
+      ..writeByte(5)
+      ..write(obj.genres)
+      ..writeByte(6)
+      ..write(obj.homePage)
+      ..writeByte(7)
+      ..write(obj.id)
+      ..writeByte(8)
+      ..write(obj.imdbId)
+      ..writeByte(9)
+      ..write(obj.originalLanguage)
+      ..writeByte(10)
+      ..write(obj.originalTitle)
+      ..writeByte(11)
+      ..write(obj.overview)
+      ..writeByte(12)
+      ..write(obj.popularity)
+      ..writeByte(13)
+      ..write(obj.posterPath)
+      ..writeByte(14)
+      ..write(obj.productionCompanies)
+      ..writeByte(15)
+      ..write(obj.productionCountries)
+      ..writeByte(16)
+      ..write(obj.releaseDate)
+      ..writeByte(17)
+      ..write(obj.revenue)
+      ..writeByte(18)
+      ..write(obj.runtime)
+      ..writeByte(19)
+      ..write(obj.spokenLanguages)
+      ..writeByte(20)
+      ..write(obj.status)
+      ..writeByte(21)
+      ..write(obj.tagline)
+      ..writeByte(22)
+      ..write(obj.title)
+      ..writeByte(23)
+      ..write(obj.video)
+      ..writeByte(24)
+      ..write(obj.voteAverage)
+      ..writeByte(25)
+      ..write(obj.voteCount)
+      ..writeByte(26)
+      ..write(obj.isNowPlaying)
+      ..writeByte(27)
+      ..write(obj.isCommingSoon);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MovieVOAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -46,6 +165,8 @@ MovieVO _$MovieVOFromJson(Map<String, dynamic> json) => MovieVO(
       json['video'] as bool?,
       (json['vote_average'] as num?)?.toDouble(),
       json['vote_count'] as int?,
+      json['isNowPlaying'] as bool?,
+      json['isCommingSoon'] as bool?,
     );
 
 Map<String, dynamic> _$MovieVOToJson(MovieVO instance) => <String, dynamic>{
@@ -75,4 +196,6 @@ Map<String, dynamic> _$MovieVOToJson(MovieVO instance) => <String, dynamic>{
       'video': instance.video,
       'vote_average': instance.voteAverage,
       'vote_count': instance.voteCount,
+      'isNowPlaying': instance.isNowPlaying,
+      'isCommingSoon': instance.isCommingSoon,
     };

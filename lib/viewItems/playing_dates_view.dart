@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../data/vos/movie_date_vo.dart';
 import '../resources/colors.dart';
 import '../resources/dimens.dart';
 import '../resources/dummy.dart';
 
 class PlayingDatesView extends StatelessWidget {
   final bool isSelected;
-  final DateVO dateVO;
+  final MovieDateVO dateVO;
   Function onTappedDate;
   PlayingDatesView(this.dateVO, this.isSelected, this.onTappedDate);
   @override
@@ -81,7 +82,7 @@ class PlayingDatesView extends StatelessWidget {
   }
 }
 class DateTextView extends StatelessWidget {
-  final DateVO date;
+  final MovieDateVO date;
   DateTextView(this.date);
   @override
   Widget build(BuildContext context) {

@@ -6,32 +6,36 @@ import '../resources/dimens.dart';
 
 class FnBBottomTotalPriceButtonView extends StatelessWidget {
   final int totalPrice;
-  FnBBottomTotalPriceButtonView(this.totalPrice);
+  final Function onTappedButtonView;
+  FnBBottomTotalPriceButtonView(this.totalPrice,this.onTappedButtonView);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 50,
-      decoration: BoxDecoration(
-          color: THEME_COLOR,
-          borderRadius: BorderRadius.all(
-            Radius.circular(MARGIN_CARD_MEDIUM_1),
-          )),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: MARGIN_MEDIUM),
-            child: BottomExpandableIconView(),
-          ),
-          Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: MARGIN_MEDIUM),
-            child: TotalPriceView(this.totalPrice),
-          )
-        ],
+    return GestureDetector(
+      onTap: () => onTappedButtonView(),
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        height: 50,
+        decoration: BoxDecoration(
+            color: THEME_COLOR,
+            borderRadius: BorderRadius.all(
+              Radius.circular(MARGIN_CARD_MEDIUM_1),
+            )),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MARGIN_MEDIUM),
+              child: BottomExpandableIconView(),
+            ),
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: MARGIN_MEDIUM),
+              child: TotalPriceView(this.totalPrice),
+            )
+          ],
+        ),
       ),
     );
   }

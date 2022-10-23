@@ -1,28 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/banner_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/city_vo.dart';
+import 'package:movie_booking_app/data/vos/config_data_vo.dart';
+import 'package:movie_booking_app/data/vos/facility_vo.dart';
+import 'package:movie_booking_app/data/vos/movie_date_timeslots_vo.dart';
+import 'package:movie_booking_app/data/vos/payment_type_vo.dart';
+import 'package:movie_booking_app/data/vos/snack_category_vo.dart';
+import 'package:movie_booking_app/data/vos/timeslot_vo.dart';
 import 'package:movie_booking_app/network/dataagents/retrofit_data_agent_impl.dart';
-import 'package:movie_booking_app/pages/CinemaPage.dart';
+import 'package:movie_booking_app/pages/promo_video_player_view.dart';
 import 'package:movie_booking_app/pages/cinema_page.dart';
 import 'package:movie_booking_app/pages/login_page.dart';
 import 'package:movie_booking_app/pages/movie_search_view.dart';
 import 'package:movie_booking_app/pages/profile_page.dart';
+import 'package:movie_booking_app/persistence/hive_constants.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/widgets/image_icon_view.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import 'data/models/movie_model.dart';
+import 'data/vos/collection_vo.dart';
+import 'data/vos/credit_vo.dart';
+import 'data/vos/date_vo.dart';
+import 'data/vos/genre_vo.dart';
+import 'data/vos/movie_vo.dart';
+import 'data/vos/production_companies_vo.dart';
+import 'data/vos/production_countries_vo.dart';
+import 'data/vos/snack_vo.dart';
+import 'data/vos/spoken_languages_vo.dart';
+import 'data/vos/user_vo.dart';
 import 'pages/home_page.dart';
 import 'pages/tickets_page.dart';
 
-void main() {
-  RetrofitDataAgentImpl()
-      .getOTP("959797119647")
-      ?.then((response) => print(response.code.toString()));
-  runApp(const MyApp());
+void main() async{
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(UserVOAdapter());
+  Hive.registerAdapter(BannerVOAdapter());
+  Hive.registerAdapter(CinemaVOAdapter());
+  Hive.registerAdapter(CityVOAdapter());
+  Hive.registerAdapter(CollectionVOAdapter());
+  Hive.registerAdapter(CreditVOAdapter());
+  Hive.registerAdapter(DateVOAdapter());
+  Hive.registerAdapter(GenreVOAdapter());
+  Hive.registerAdapter(MovieVOAdapter());
+  Hive.registerAdapter(ProductionCompaniesVOAdapter());
+  Hive.registerAdapter(ProductionCountriesVOAdapter());
+  Hive.registerAdapter(SpokenLanguagesVOAdapter());
+  Hive.registerAdapter(SnackCategoryVOAdapter());
+  Hive.registerAdapter(SnackVOAdapter());
+  Hive.registerAdapter(FacilityVOAdapter());
+  Hive.registerAdapter(PaymentTypeVOAdapter());
+  Hive.registerAdapter(TimeSlotVOAdapter());
+  Hive.registerAdapter(CinemaDayTimeslotsVOAdapter());
+  Hive.registerAdapter(ConfigDataVOAdapter());
+  Hive.registerAdapter(MovieDateTimeSlotsVOAdapter());
+  //
+  await Hive.openBox<UserVO>(BOX_NAME_USER_VO);
+  await Hive.openBox<BannerVO>(BOX_NAME_BANNER_VO);
+  await Hive.openBox<MovieVO>(BOX_NAME_MOVIE_VO);
+  await Hive.openBox<GenreVO>(BOX_NAME_GENRE_VO);
+  await Hive.openBox<CinemaVO>(BOX_NAME_CINEMA_VO);
+  await Hive.openBox<CityVO>(BOX_NAME_CITY_VO);
+  await Hive.openBox<SnackCategoryVO>(BOX_NAME_SNACK_CATEGORY_VO);
+  await Hive.openBox<SnackVO>(BOX_NAME_SNACK_VO);
+  await Hive.openBox<PaymentTypeVO>(BOX_NAME_PAYMENT_TYPE_VO);
+  await Hive.openBox<ConfigDataVO>(BOX_NAME_CONFIG_DATA_VO);
+  await Hive.openBox<MovieDateTimeSlotsVO>(BOX_NAME_MOVIE_DATE_TIMESLOTS_VO);
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
 
+  MovieModelImpl movieModel = MovieModelImpl();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -32,7 +88,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(),
+      home: (movieModel.mUserDao.getAllUsers().isEmpty) ? LoginPage() : MovieApp(city:movieModel.getLoginUser()?.selectedCity),
+      // home : LoginPage()
     );
   }
 }

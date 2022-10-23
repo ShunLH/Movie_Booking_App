@@ -1,16 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
 import 'package:movie_booking_app/pages/payment_page.dart';
 import 'package:movie_booking_app/pages/ticket_confirmation_page.dart';
 import 'package:movie_booking_app/widgets/cancelation_policy_view.dart';
 import 'package:movie_booking_app/viewItems/food_item_ticket_price_view.dart';
 import 'package:movie_booking_app/widgets/corner_separator_view.dart';
 import 'package:movie_booking_app/widgets/design_button_view.dart';
+import '../data/vos/c_snack_vo.dart';
+import '../data/vos/cinema_vo.dart';
+import '../data/vos/date_vo.dart';
+import '../data/vos/movie_vo.dart';
+import '../data/vos/snack_vo.dart';
+import '../data/vos/timeslot_vo.dart';
 import '../resources/colors.dart';
 import '../resources/dimens.dart';
+import '../resources/strings.dart';
 import '../widgets/app_bar_back_button_view.dart';
 import '../viewItems/date_time_location_view.dart';
 
-class CheckOutPage extends StatelessWidget {
+class CheckOutPage extends StatefulWidget {
+  final MovieVO? mMovie;
+  final CinemaVO? mCinema;
+  final List<SnackVO>? mSnackList;
+  final CinemaDayTimeslotsVO? mCinemaTimeSlot;
+  final TimeSlotVO? cinemaTimeSlot;
+  final String? bookingDate;
+
+  CheckOutPage({required this.mMovie, required this.mCinema,required this.mSnackList,required this.mCinemaTimeSlot,required this.cinemaTimeSlot,required this.bookingDate});
+
+  @override
+  State<CheckOutPage> createState() => _CheckOutPageState();
+}
+
+class _CheckOutPageState extends State<CheckOutPage> {
+  int foodAndBeverageTotal = 0;
+  int convenienceFee = 500;
+  int movieTicketPriceTotal = 2000;
+  int totalPrice = 0;
+  @override
+  void initState() {
+    _calcTotalPrice();
+  }
+  void _calcTotalPrice(){
+    foodAndBeverageTotal = 0;
+    totalPrice = 0;
+    this.widget.mSnackList?.forEach((element) {
+      foodAndBeverageTotal += (element.price ?? 0) * (element.quantity ?? 1);
+      totalPrice = foodAndBeverageTotal + movieTicketPriceTotal + convenienceFee;
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +59,7 @@ class CheckOutPage extends StatelessWidget {
         centerTitle: true,
         title: Container(
           child: Text(
-            "CheckOut",
+            CHECKOUT_TITLE,
             style: TextStyle(
               fontSize: TEXT_REGULAR_2X,
             ),
@@ -40,7 +79,7 @@ class CheckOutPage extends StatelessWidget {
                 alignment: Alignment.topCenter,
                 child: Container(
                   width: MediaQuery.of(context).size.width - 32,
-                  height: 560,
+                  height: 600,
                   decoration: BoxDecoration(
                     color: CHECKOUT_SCREEN_TICKET_BG_COLOR,
                     borderRadius:
@@ -69,13 +108,13 @@ class CheckOutPage extends StatelessWidget {
                             child: Container(
                               child: Column(
                                 children: [
-                                  MovieTitleView(),
+                                  MovieTitleView(this.widget.mMovie),
                                   SizedBox(height: MARGIN_SMALL),
-                                  CinemaTitleView(),
+                                  CinemaTitleView(this.widget.mCinema),
                                   SizedBox(height: MARGIN_SMALL),
-                                  DateTimeLocationView(),
+                                  DateTimeLocationView(bookingDate:this.widget.bookingDate ?? "",movieStartTime: this.widget.cinemaTimeSlot?.startTime ?? "",cinemaId: this.widget.mCinema?.id ?? 0,),
                                   SizedBox(height: MARGIN_SMALL),
-                                  TicketPriceView(),
+                                  TicketPriceView(quantity: 1, toalTicketPrice : movieTicketPriceTotal),
                                   SizedBox(height: MARGIN_SMALL),
                                   SeparatorView(0),
                                 ],
@@ -88,8 +127,13 @@ class CheckOutPage extends StatelessWidget {
                     Container(
                       margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
                       child: Padding(
-                        padding: EdgeInsets.all(MARGIN_MEDIUM),
-                        child: FoodAndBeveragePriceView(),
+                        padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
+                        child: FoodAndBeveragePriceView(this.widget.mSnackList,this.foodAndBeverageTotal,(snackId){
+                          setState(() {
+                            this.widget.mSnackList?.removeWhere((element) => element.id == snackId);
+                            _calcTotalPrice();
+                          });
+                        }),
                       ),
                     ),
                     CornerSeparator(30, Colors.transparent),
@@ -99,7 +143,7 @@ class CheckOutPage extends StatelessWidget {
                         padding: EdgeInsets.all(MARGIN_MEDIUM),
                         child: Column(
                           children: [
-                            ConvenienceFeeView(() {
+                            ConvenienceFeeView(convenienceFee,() {
                               showDialog(
                                 context: context,
                                 builder: (context) {
@@ -114,7 +158,7 @@ class CheckOutPage extends StatelessWidget {
                             SizedBox(height: MARGIN_MEDIUM_2),
                             SeparatorView(0),
                             SizedBox(height: MARGIN_MEDIUM_2),
-                            TotalPriceView(),
+                            TotalPriceView(totalPrice),
                           ],
                         ),
                       ),
@@ -132,22 +176,18 @@ class CheckOutPage extends StatelessWidget {
   }
 
   void _onTappedContinue(BuildContext context) {
+    List<CSnackVO> snackList = [];
+    snackList = this.widget.mSnackList?.map((snack) => CSnackVO(snack.id ?? 0, null, null, null, null, null, snack?.quantity ?? 1, null)).toList() ?? [];
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => PaymentPage()),
+      MaterialPageRoute(builder: (context) => PaymentPage(mMovie: this.widget.mMovie,mCinema: this.widget.mCinema,mSnackList: snackList,cinemaDayTimeslotId: this.widget.cinemaTimeSlot?.id ?? 0,bookingDate: this.widget.bookingDate,)),
     );
   }
-
-  // Widget _onTappedCancelationPolicy(BuildContext context) {
-  //   return showDialog(context: context, builder: (context) {  return AlertDialog(
-  //     title: Text(""),
-  //     content: CancelationPolicyView(),
-  //   );});
-  //
-  // }
 }
 
 class TotalPriceView extends StatelessWidget {
+  final int totalPrice;
+  TotalPriceView(this.totalPrice);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -163,7 +203,7 @@ class TotalPriceView extends StatelessWidget {
           ),
           Spacer(),
           Text(
-            "22500Ks",
+            "${totalPrice}Ks",
             style: TextStyle(
                 color: THEME_COLOR,
                 fontSize: TEXT_REGULAR,
@@ -176,8 +216,9 @@ class TotalPriceView extends StatelessWidget {
 }
 
 class ConvenienceFeeView extends StatelessWidget {
+  final int convenienceFee;
   Function onTappedCancelationPolicy;
-  ConvenienceFeeView(this.onTappedCancelationPolicy);
+  ConvenienceFeeView(this.convenienceFee,this.onTappedCancelationPolicy);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -187,7 +228,7 @@ class ConvenienceFeeView extends StatelessWidget {
           Row(
             children: [
               Text(
-                "Convenience Fee",
+                CONVENIENCE_FEE,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: TEXT_REGULAR_2X,
@@ -204,7 +245,7 @@ class ConvenienceFeeView extends StatelessWidget {
               ),
               Spacer(),
               Text(
-                "500Ks",
+                "${convenienceFee}Ks",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: TEXT_REGULAR,
@@ -260,28 +301,40 @@ class CancelationPolicyButtonView extends StatelessWidget {
 }
 
 class FoodAndBeveragePriceView extends StatelessWidget {
+  final List<SnackVO>? mSnackList;
+  final int snacksTotalPrice;
+  Function(int) onTappedRemoveSnack;
+
+  FoodAndBeveragePriceView(this.mSnackList,this.snacksTotalPrice,this.onTappedRemoveSnack);
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        FoodAndBeverageTotalPriceTitleView(),
+        FoodAndBeverageTotalPriceTitleView(snacksTotalPrice),
         SizedBox(height: MARGIN_SMALL),
-        FoodItemTicketPriceView("CocoaCola", "1000"),
-        SizedBox(height: MARGIN_SMALL),
-        FoodItemTicketPriceView("Potato Chips", "1000"),
+        ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.vertical,
+          itemCount: mSnackList?.length ?? 0,
+            itemBuilder: (BuildContext context , int index) {
+          return FoodItemTicketPriceView(mSnackList?[index],(snackId) => onTappedRemoveSnack(snackId));
+        }),
       ],
     );
   }
 }
 
 class TicketPriceView extends StatelessWidget {
+  final int toalTicketPrice;
+  final int quantity;
+  TicketPriceView({required this.quantity,required this.toalTicketPrice});
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "M-Tickets(2)",
+          "M-Tickets(${quantity})",
           style: TextStyle(
               color: Colors.white24,
               fontSize: TEXT_REGULAR,
@@ -301,7 +354,7 @@ class TicketPriceView extends StatelessWidget {
             ),
             Spacer(),
             Text(
-              "2000Ks",
+              "${toalTicketPrice}Ks",
               style: TextStyle(
                   color: Colors.white,
                   fontSize: TEXT_REGULAR_2X,
@@ -326,12 +379,14 @@ class ContinueButtonView extends StatelessWidget {
 }
 
 class CinemaTitleView extends StatelessWidget {
+  final CinemaVO? mCinema;
+  CinemaTitleView(this.mCinema);
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Text(
-          "JCGV: Junction City",
+          "${mCinema?.name}",
           style: TextStyle(
             color: THEME_COLOR,
             fontSize: TEXT_REGULAR_2X,
@@ -354,12 +409,14 @@ class CinemaTitleView extends StatelessWidget {
 }
 
 class MovieTitleView extends StatelessWidget {
+  final MovieVO? mMovie;
+  MovieTitleView(this.mMovie);
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Text(
-          "Black Window",
+          "${mMovie?.title}",
           style: TextStyle(
             color: Colors.white,
             fontSize: TEXT_REGULAR_2X,
@@ -382,6 +439,8 @@ class MovieTitleView extends StatelessWidget {
 }
 
 class FoodAndBeverageTotalPriceTitleView extends StatelessWidget {
+  final int snackTotalPrice;
+  FoodAndBeverageTotalPriceTitleView(this.snackTotalPrice);
   @override
   Widget build(BuildContext context) {
     return Row(children: [
@@ -394,7 +453,7 @@ class FoodAndBeverageTotalPriceTitleView extends StatelessWidget {
         width: MARGIN_SMALL,
       ),
       Text(
-        "Food and Beverage",
+        FOOD_AND_BEVERAGE_TITLE,
         style: TextStyle(
             color: Colors.white,
             fontSize: TEXT_REGULAR,
@@ -410,7 +469,7 @@ class FoodAndBeverageTotalPriceTitleView extends StatelessWidget {
       ),
       Spacer(),
       Text(
-        "2000Ks",
+        "${snackTotalPrice}Ks",
         style: TextStyle(
             color: Colors.white,
             fontSize: TEXT_REGULAR_2X,

@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:movie_booking_app/data/vos/checkout_request_vo.dart';
 import 'package:movie_booking_app/data/vos/user_vo.dart';
 import 'package:movie_booking_app/network/api_constants.dart';
 import 'package:movie_booking_app/network/responses/basic_response.dart';
 import 'package:movie_booking_app/network/responses/get_banner_response.dart';
+import 'package:movie_booking_app/network/responses/get_checkout_response.dart';
 import 'package:movie_booking_app/network/responses/get_cinema_and_st_by_date_response.dart';
 import 'package:movie_booking_app/network/responses/get_cinema_response.dart';
 import 'package:movie_booking_app/network/responses/get_city_response.dart';
@@ -83,4 +85,9 @@ abstract class PadcMovieApi {
   Future<BasicResponse>? setCity(
       @Header(PARAM_AUTHORIZATION) String bearerToken,
       @Field(PARAM_CITY_ID) String cityID);
+
+  @POST(ENDPOINT_CHECK_OUT)
+  Future<GetCheckOutResponse>? requestCheckOut(
+      @Header(PARAM_AUTHORIZATION) String bearerToken,
+      @Body() CheckOutRequestVO checkoutRequestVO);
 }

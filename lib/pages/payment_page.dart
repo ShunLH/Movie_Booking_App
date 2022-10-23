@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:movie_booking_app/data/models/data_repository.dart';
 import 'package:movie_booking_app/data/models/movie_model.dart';
 import 'package:movie_booking_app/data/models/movie_model_impl.dart';
+import 'package:movie_booking_app/data/vos/c_snack_vo.dart';
+import 'package:movie_booking_app/data/vos/checkout_request_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/payment_type_vo.dart';
 import 'package:movie_booking_app/pages/ticket_confirmation_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
@@ -11,7 +15,21 @@ import 'package:movie_booking_app/widgets/image_icon_view.dart';
 import 'package:movie_booking_app/viewItems/payment_type_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../data/vos/movie_vo.dart';
+import '../data/vos/snack_vo.dart';
+
 class PaymentPage extends StatefulWidget {
+  final MovieVO? mMovie;
+  final CinemaVO? mCinema;
+  final List<CSnackVO>? mSnackList;
+  final int? cinemaDayTimeslotId;
+  final String? bookingDate;
+  PaymentPage(
+      {required this.mMovie,
+      required this.mCinema,
+      required this.mSnackList,
+      required this.cinemaDayTimeslotId,
+      this.bookingDate});
   @override
   State<PaymentPage> createState() => _PaymentPageState();
 }
@@ -19,13 +37,24 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   MovieModel mMovieModel = MovieModelImpl();
   DataRepository dataRepository = DataRepository();
-
   List<PaymentTypeVO>? paymentTypes;
-
+  int selectedPaymentTypeId = 0;
   @override
   void initState() {
     super.initState();
-    mMovieModel.getPaymentTypes(dataRepository.getAuthorizationToken())?.then((paymentTypesList) {
+    var token = mMovieModel.getTokenFromDatabase();
+    mMovieModel
+        .getPaymentTypes(mMovieModel.getTokenFromDatabase())
+        ?.then((paymentTypesList) {
+      setState(() {
+        this.paymentTypes = paymentTypesList;
+      });
+    });
+
+    /// Database
+    mMovieModel
+        .getPaymentTypesFromDatabase()
+        ?.then((paymentTypesList) {
       setState(() {
         this.paymentTypes = paymentTypesList;
       });
@@ -93,22 +122,45 @@ class _PaymentPageState extends State<PaymentPage> {
             //     }),
             SizedBox(height: MARGIN_MEDIUM),
             Container(
-              child: (paymentTypes != null) ? Column(
-                  children: paymentTypes!
-                      .map((item) => PaymentTypeView(item,() => this._navigateToTicketConfirmation(context)))
-                      .toList()) : Container(),
+              child: (paymentTypes != null)
+                  ? Column(
+                      children: paymentTypes!
+                          .map((item) => PaymentTypeView(item, (paymentTypeId) {
+                                this.selectedPaymentTypeId = paymentTypeId;
+                                this._navigateToTicketConfirmation(context);
+                              }))
+                          .toList())
+                  : Container(),
             ),
           ],
         ),
       ),
-
     );
   }
 
   void _navigateToTicketConfirmation(BuildContext context) {
-    Navigator.push(context, MaterialPageRoute(
-      builder: (context) => TicketConfirmationPage(),
-    ));
+    print("booking date ${this.widget.bookingDate}");
+    CheckOutRequestVO requestBody = CheckOutRequestVO(
+        this.widget.cinemaDayTimeslotId ?? 0,
+        "D-11",
+        "${this.widget.bookingDate}",
+        this.widget.mMovie?.id ?? 0,
+        this.selectedPaymentTypeId,
+        this.widget.mSnackList ?? []);
+    mMovieModel
+        .requestCheckout(mMovieModel.getTokenFromDatabase(), requestBody)
+        ?.then((value) {
+      if (value.code == 200) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  TicketConfirmationPage(this.widget.mMovie, value?.data),
+            ));
+      }
+      print("code ${value.code} ${value.message}");
+      debugPrint(value.data.toString());
+    });
   }
 }
 

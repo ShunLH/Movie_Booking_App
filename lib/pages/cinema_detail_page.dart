@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/pages/promo_video_player_view.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
@@ -31,7 +32,7 @@ class CinemaDetailPage extends StatelessWidget {
           child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PromoView(mCinema),
+          PromoView(mCinema,(movieURL)=> _navigateToPlayerView(context,movieURL)),
           Container(
               padding: EdgeInsets.all(MARGIN_MEDIUM),
               child: Column(
@@ -64,6 +65,9 @@ class CinemaDetailPage extends StatelessWidget {
         ],
       )),
     );
+  }
+  void _navigateToPlayerView(BuildContext context,String movieURL){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => VideoPlayerView(movieURL)));
   }
 }
 
@@ -140,7 +144,8 @@ class CinemaAddressTextView extends StatelessWidget {
 
 class PromoView extends StatelessWidget {
   final CinemaVO mCinema;
-  PromoView(this.mCinema);
+  Function(String) onTappedViewPromoVideo;
+  PromoView(this.mCinema, this.onTappedViewPromoVideo);
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +154,10 @@ class PromoView extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: CinemaPromoVideoView(mCinema.promoVdoURL ?? ""),
+            child: GestureDetector(
+              onTap: () => onTappedViewPromoVideo(mCinema.promoVdoURL ?? ""),
+              child: CinemaPromoVideoView(mCinema.promoVdoURL ?? ""),
+            ),
           ),
           Align(
             alignment: Alignment.center,
@@ -195,13 +203,20 @@ class ChipView extends StatelessWidget {
       {required this.textStr,
       this.color = PRIMARY_COLOR,
       this.backgroundColor = THEME_COLOR,
-        this.fontSize = 10.0,
+      this.fontSize = 10.0,
       this.iconURL = null});
 
   @override
   Widget build(BuildContext context) {
     return Chip(
-      avatar: (iconURL != null) ? Image.network(iconURL ?? "",width: ICON_SMALL_SIZE,height: ICON_SMALL_SIZE,color: color,) : null,
+      avatar: (iconURL != null)
+          ? Image.network(
+              iconURL ?? "",
+              width: ICON_SMALL_SIZE,
+              height: ICON_SMALL_SIZE,
+              color: color,
+            )
+          : null,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
       backgroundColor: backgroundColor,

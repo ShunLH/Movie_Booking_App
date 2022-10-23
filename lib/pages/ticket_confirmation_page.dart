@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_booking_app/assets.dart';
+import 'package:movie_booking_app/network/api_constants.dart';
 import 'package:movie_booking_app/pages/confirm_success_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
@@ -8,9 +9,15 @@ import 'package:movie_booking_app/viewItems/date_time_location_view.dart';
 import 'package:movie_booking_app/widgets/separator_line_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../data/vos/movie_vo.dart';
+import '../data/vos/ticket_vo.dart';
 import '../widgets/corner_separator_view.dart';
 
 class TicketConfirmationPage extends StatelessWidget {
+  final TicketVO? mTicketVO;
+  final MovieVO? mMovieVO;
+
+  TicketConfirmationPage(this.mMovieVO,this.mTicketVO);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,9 +29,9 @@ class TicketConfirmationPage extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         color: Colors.black,
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          TicketView(),
+          TicketView(mMovieVO,mTicketVO),
           SizedBox(height: MARGIN_XXLARGE),
-          QRAndPinView(),
+          QRAndPinView(mTicketVO?.qrCode),
           SizedBox(height: MARGIN_XXLARGE),
           DoneButtonView(() => _onTappedDoneButton(context))
         ]),
@@ -39,6 +46,10 @@ class TicketConfirmationPage extends StatelessWidget {
 }
 
 class TicketView extends StatelessWidget {
+  final TicketVO? mTicketVO;
+  final MovieVO? mMovieVO;
+
+  TicketView(this.mMovieVO,this.mTicketVO);
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +63,12 @@ class TicketView extends StatelessWidget {
               colors: [PRIMARY_COLOR,Colors.white12])),
       child: Column(
         children: [
-          TicketMovieInfoView(),
+          TicketMovieInfoView(mMovieVO,mTicketVO),
           RoundedCornerSeparatorView(16),
           Container(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
-              child: DateTimeLocationView(),
+              child: DateTimeLocationView(bookingDate: (mTicketVO?.bookingDate ?? ""),movieStartTime: (mTicketVO?.timeslot?.startTime ?? ""),cinemaId:(mTicketVO?.cinema_id ?? 0) ,),
             ),
           ),
         ],
@@ -114,9 +125,9 @@ class RoundedCornerSeparatorView extends StatelessWidget {
 }
 
 class TicketMovieInfoView extends StatelessWidget {
-  const TicketMovieInfoView({
-    Key? key,
-  }) : super(key: key);
+  final TicketVO? mTicketVO;
+  final MovieVO? mMovieVO;
+  TicketMovieInfoView(this.mMovieVO,this.mTicketVO);
 
   @override
   Widget build(BuildContext context) {
@@ -126,9 +137,9 @@ class TicketMovieInfoView extends StatelessWidget {
             vertical: MARGIN_MEDIUM, horizontal: MARGIN_MEDIUM),
         child: Row(
           children: [
-            MovieImageView(),
+            MovieImageView(mMovieVO?.posterPath ?? ""),
             SizedBox(width: MARGIN_SMALL),
-            TicketDetailInfoView(),
+            TicketDetailInfoView(mMovieVO,mTicketVO),
           ],
         ),
       ),
@@ -137,6 +148,8 @@ class TicketMovieInfoView extends StatelessWidget {
 }
 
 class MovieImageView extends StatelessWidget {
+  final String movieImgURl;
+  MovieImageView(this.movieImgURl);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -145,7 +158,7 @@ class MovieImageView extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
         child: Image.network(
-          movie1,
+          "${IMAGE_BASE_URL}${movieImgURl}",
           fit: BoxFit.cover,
         ),
       ),
@@ -154,16 +167,16 @@ class MovieImageView extends StatelessWidget {
 }
 
 class QRAndPinView extends StatelessWidget {
-  const QRAndPinView({
-    Key? key,
-  }) : super(key: key);
-
+  final String? qrImgURL;
+  QRAndPinView(this.qrImgURL);
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 150,
       height: 180,
-      child: Image.asset(
+      child: (qrImgURL != "" && qrImgURL != null) ? Image.network(
+        "${PADC_BASE_URL}/${qrImgURL}",fit: BoxFit.cover,
+      ) : Image.asset(
         "assets/images/qr_and_pin.png",
         fit: BoxFit.cover,
       ),
@@ -172,6 +185,11 @@ class QRAndPinView extends StatelessWidget {
 }
 
 class TicketDetailInfoView extends StatelessWidget {
+  final TicketVO? mTicketVO;
+  final MovieVO? mMovie;
+
+  TicketDetailInfoView(this.mMovie,this.mTicketVO);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -181,7 +199,7 @@ class TicketDetailInfoView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Black Widow (3D) (U/A))",
+            "${mMovie?.title}",
             style: TextStyle(
               color: Colors.white,
               fontSize: TEXT_REGULAR,
@@ -189,8 +207,7 @@ class TicketDetailInfoView extends StatelessWidget {
             ),
           ),
           SizedBox(height: MARGIN_CARD_MEDIUM_1),
-          Text(
-            "JCGV: Junction City",
+          Text(getCinemaNameById(mTicketVO?.cinema_id ?? 0),
             style: TextStyle(
               color: THEME_COLOR,
               fontSize: TEXT_REGULAR,
@@ -199,7 +216,7 @@ class TicketDetailInfoView extends StatelessWidget {
           ),
           SizedBox(height: MARGIN_CARD_MEDIUM_1),
           Text(
-            "M-Ticket(2)",
+            "M-Ticket(${mTicketVO?.totalSeat ?? 1})",
             style: TextStyle(
               color: Colors.white,
               fontSize: TEXT_CARD_SMALL,
@@ -209,7 +226,7 @@ class TicketDetailInfoView extends StatelessWidget {
           Row(
             children: [
               Text(
-                "Gold- G8,G9",
+                "${mTicketVO?.seat}",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: TEXT_REGULAR,

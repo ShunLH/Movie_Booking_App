@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:movie_booking_app/data/models/movie_model.dart';
 import 'package:movie_booking_app/data/models/movie_model_impl.dart';
 import 'package:movie_booking_app/data/vos/credit_vo.dart';
@@ -34,6 +35,12 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
     super.initState();
     print("movie id ===> ${widget.movieId}");
     mMovieModel?.getMovieDetails(widget.movieId)?.then((movie) {
+      setState(() {
+        this.mMovie = movie;
+      });
+    });
+
+    mMovieModel?.getMovieDetailsFromDatabase(widget.movieId)?.then((movie) {
       setState(() {
         this.mMovie = movie;
       });
@@ -112,7 +119,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MovieTimePage(),
+          builder: (context) => MovieTimePage(mMovie),
         ));
   }
 }
@@ -265,32 +272,56 @@ class HorizontalCastListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: GridView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: MediaQuery.of(context).size.width/4,
-              childAspectRatio: 0.7,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8),
+        height: CASTS_LIST_HEIGHT,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
           itemCount: castsList?.length ?? 0,
           itemBuilder: (BuildContext context, int index) {
-            return Column(
-              children: [
-                CastView(castsList?[index].profilePath ?? ""),
-                SizedBox(height: MARGIN_SMALL),
-                Expanded(
-                  child: Text(
-                    castsList?[index].originalName ?? "",
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(color: Colors.white, fontSize: TEXT_REGULAR),
-                  ),
-                )
-              ],
+            return Container(
+              width: MediaQuery.of(context).size.width / 4,
+              child: Column(
+                children: [
+                  CastView(castsList?[index].profilePath ?? ""),
+                  SizedBox(height: MARGIN_SMALL),
+                  Expanded(
+                    child: Text(
+                      castsList?[index].originalName ?? "",
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(color: Colors.white, fontSize: TEXT_REGULAR),
+                    ),
+                  )
+                ],
+              ),
             );
-          }),
-    );
+          },
+        )
+        // child: GridView.builder(
+        //     shrinkWrap: true,
+        //     physics: NeverScrollableScrollPhysics(),
+        //     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        //         maxCrossAxisExtent: MediaQuery.of(context).size.width/4,
+        //         childAspectRatio: 0.7,
+        //         crossAxisSpacing: 8,
+        //         mainAxisSpacing: 8),
+        //     itemCount: castsList?.length ?? 0,
+        //     itemBuilder: (BuildContext context, int index) {
+        //       return Column(
+        //         children: [
+        //           CastView(castsList?[index].profilePath ?? ""),
+        //           SizedBox(height: MARGIN_SMALL),
+        //           Expanded(
+        //             child: Text(
+        //               castsList?[index].originalName ?? "",
+        //               textAlign: TextAlign.center,
+        //               style:
+        //                   TextStyle(color: Colors.white, fontSize: TEXT_REGULAR),
+        //             ),
+        //           )
+        //         ],
+        //       );
+        //     }),
+        );
   }
 }
 

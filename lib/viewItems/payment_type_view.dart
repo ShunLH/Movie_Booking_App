@@ -7,7 +7,7 @@ import 'package:movie_booking_app/widgets/title_text_view.dart';
 
 class PaymentTypeView extends StatelessWidget {
   final PaymentTypeVO paymentType;
-  Function onTappedPaymentType;
+  Function(int) onTappedPaymentType;
 
   PaymentTypeView(this.paymentType, this.onTappedPaymentType);
 
@@ -18,7 +18,7 @@ class PaymentTypeView extends StatelessWidget {
       height: 60,
       padding: EdgeInsets.symmetric(vertical: MARGIN_XSMALL),
       child: GestureDetector(
-        onTap: () => this.onTappedPaymentType(),
+        onTap: () => this.onTappedPaymentType(paymentType.id ?? 0),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
           decoration: BoxDecoration(

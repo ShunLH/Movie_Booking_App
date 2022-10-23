@@ -37,7 +37,23 @@ class _MyHomePageState extends State<MyHomePage> {
     }).catchError((error) {
       debugPrint(error.toString());
     });
+    /// Database
+    movieModel.getBannersFromDatabase()?.then((bannerList) {
+      setState(() {
+        this.mBannerList = bannerList;
+      });
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+
     movieModel.getCinemasList("")?.then((cinemasList) {
+      setState(() {
+        // dataRepository.cinemaList = cinemasList;
+      });
+    });
+
+  /// Database
+    movieModel.getCinemasFromDatabase()?.then((cinemasList) {
       setState(() {
         dataRepository.cinemaList = cinemasList;
       });
@@ -47,7 +63,15 @@ class _MyHomePageState extends State<MyHomePage> {
       dataRepository.cinemaConfigList = configList;
       List valueList = configList.first.value;
       dataRepository.cinemaTimeSlotStatusList = valueList.map((value) => CinemaTimeSlotStatusVO.fromJson(value)).toList();
-      print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
+      // print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
+
+    });
+    /// Database
+    movieModel.getConfigsCinemaTimeSlotsFromDatabase()?.then((configList) {
+      dataRepository.cinemaConfigList = configList;
+      List valueList = configList.first.value;
+      dataRepository.cinemaTimeSlotStatusList = valueList.map((value) => CinemaTimeSlotStatusVO.fromJson(value)).toList();
+      // print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
 
     });
 
@@ -167,8 +191,22 @@ class _MovieCategoryTabSectionViewState
       }).catchError((error) {
         debugPrint(error.toString());
       });
+      mMovieModel?.getNowPlayingMoviesFromDatabase()?.then((movieList) {
+        setState(() {
+          moviesList = movieList;
+        });
+      }).catchError((error) {
+        debugPrint(error.toString());
+      });
     }else{
       mMovieModel?.getCommingSoonMovies(1)?.then((movieList) {
+        setState(() {
+          moviesList = movieList;
+        });
+      }).catchError((error) {
+        debugPrint(error.toString());
+      });
+      mMovieModel?.getCommingSoonMoviesFromDatabase()?.then((movieList) {
         setState(() {
           moviesList = movieList;
         });

@@ -9,12 +9,26 @@ import 'package:movie_booking_app/resources/strings.dart';
 import '../resources/colors.dart';
 import '../resources/dimens.dart';
 
-class OTPConfirmPage extends StatelessWidget {
-  MovieModel movieModel = MovieModelImpl();
+class OTPConfirmPage extends StatefulWidget {
   final String phoneNumber;
 
   OTPConfirmPage(this.phoneNumber);
 
+  @override
+  State<OTPConfirmPage> createState() => _OTPConfirmPageState();
+
+}
+
+class _OTPConfirmPageState extends State<OTPConfirmPage> {
+  MovieModel movieModel = MovieModelImpl();
+
+  String otpCode = "";
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("ph number ${widget.phoneNumber}");
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +71,11 @@ class OTPConfirmPage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: MARGIN_XXLARGE),
-                OTPTextFieldView(),
+                OTPTextFieldView((otp) {
+                  setState(() {
+                    this.otpCode = otp;
+                  });
+                }),
                 Container(
                   margin: EdgeInsets.all(MARGIN_MEDIUM_2),
                   child: ConfirmOTPButtonView(
@@ -70,9 +88,10 @@ class OTPConfirmPage extends StatelessWidget {
   }
 
   void _navigateToPickRegionView(BuildContext context) {
-    print("phoneNumber");
+    print("phoneNumber ${widget.phoneNumber}");
 
-    movieModel.signInWithPhone(phoneNumber, "123456")?.then((response) {
+    movieModel.signInWithPhone(widget.phoneNumber, "123456")?.then((response) {
+      print("response ${response.code} ${response.data}");
       if (response.code == 201 && response.data != null) {
         DataRepository dataRepository = DataRepository();
         dataRepository.token = response.token;
@@ -86,6 +105,7 @@ class OTPConfirmPage extends StatelessWidget {
       }
     });
   }
+
   showAlertDialog(BuildContext context) {
 
     Widget continueButton = TextButton(
@@ -130,6 +150,8 @@ class LogoImageView extends StatelessWidget {
 }
 
 class OTPTextFieldView extends StatelessWidget {
+  Function(String) onChangedOTPCode;
+  OTPTextFieldView(this.onChangedOTPCode);
   @override
   Widget build(BuildContext context) {
     return OtpTextField(
@@ -139,6 +161,9 @@ class OTPTextFieldView extends StatelessWidget {
       filled: true,
       showFieldAsBox: true,
       cursorColor: PRIMARY_COLOR,
+      onCodeChanged: (String code) {
+        this.onChangedOTPCode(code);
+      },
     );
   }
 }

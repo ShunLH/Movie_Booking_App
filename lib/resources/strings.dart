@@ -43,6 +43,9 @@ const CHOOSE_PAYMENT_TYPE = "Choose your payment type";
 final List<String> tabsList = [NOW_PLAYING_TITLE,COMMING_SOON_TITLE];
 
 const CANCELLATION_RULES = "1. Refund not available for Convenience fees,Vouchers, Gift Cards, Taxes etc. \n\n2. No cancelation within 20minute of show start time. ";
+const CHECKOUT_TITLE = "CheckOut";
+const FOOD_AND_BEVERAGE_TITLE = "Food and Beverage";
+const CONVENIENCE_FEE = "Convenience Fee";
 
 const PRICE_RANGE_TITLE = "Price Range";
 const CINEMA_DETAIL = "Cinema Details";

@@ -31,8 +31,14 @@ class _PickRegionPageState extends State<PickRegionPage> {
         this.citiesList = cities;
       });
     }).catchError((error) => debugPrint(error.toString()));
-
+    /// Database
+    movieModel.getCitiesFromDatabase()?.then((cities) {
+      setState(() {
+        this.citiesList = cities;
+      });
+    }).catchError((error) => debugPrint(error.toString()));
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +90,8 @@ class _PickRegionPageState extends State<PickRegionPage> {
   void _navigateToHomePage(BuildContext context,cityId){
     if (citiesList != null) {
       CityVO selectedCity = citiesList!.where((city) => city.id == cityId).first;
-      String bearerToken = dataRepository.getAuthorizationToken();
+      dataRepository.location = selectedCity;
+      String bearerToken = movieModel.getTokenFromDatabase();
       print("Token $bearerToken");
 
       movieModel.setCity(bearerToken, "${cityId}")?.then((response){

@@ -9,11 +9,14 @@ import 'package:movie_booking_app/data/vos/cinema_timeslot_status_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/facility_vo.dart';
 import 'package:movie_booking_app/data/vos/timeslot_vo.dart';
+import 'package:movie_booking_app/pages/cinema_detail_page.dart';
 import 'package:movie_booking_app/pages/food_and_beverage_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../data/vos/movie_date_vo.dart';
+import '../data/vos/movie_vo.dart';
 import '../resources/dummy.dart';
 import '../resources/dimens.dart';
 import '../viewItems/facility_item_view.dart';
@@ -23,6 +26,8 @@ import '../widgets/cinema_title_view.dart';
 import '../widgets/icon_text_view.dart';
 
 class MovieTimePage extends StatefulWidget {
+  final MovieVO? mMovie;
+  MovieTimePage(this.mMovie);
   @override
   State<MovieTimePage> createState() => _MovieTimePageState();
 }
@@ -30,14 +35,17 @@ class MovieTimePage extends StatefulWidget {
 class _MovieTimePageState extends State<MovieTimePage> {
   final List<String> cinemaTypeList = ["2D", "3D", "3D Max", "3D DBox"];
   MovieModel mMovieModel = MovieModelImpl();
-  List<DateVO> mDatesList = [];
+  List<MovieDateVO> mDatesList = [];
   List<CinemaDayTimeslotsVO>? mCinemaTimeSlotsList;
+  int selectedCinemaDayTimeSlotId = 1;
+  String selectedDate = "";
 
   @override
   void initState() {
     super.initState();
     _generateMovieShowingDatesList();
     String dateString = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    selectedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _getCinemaAndShowTimeByDate(dateString);
   }
 
@@ -45,7 +53,17 @@ class _MovieTimePageState extends State<MovieTimePage> {
     print("dateString ${dateString}");
     mMovieModel
         .getCinemaAndShowTimeByDate(
-            dataRepository.getAuthorizationToken(), dateString)
+            mMovieModel.getTokenFromDatabase(), dateString)
+        ?.then((timeSlotsList) {
+      setState(() {
+        mCinemaTimeSlotsList = timeSlotsList;
+      });
+    });
+
+    /// Database
+    mMovieModel
+        .getCinemaAndShowTimeByDateFromDatabase(
+        dateString)
         ?.then((timeSlotsList) {
       setState(() {
         mCinemaTimeSlotsList = timeSlotsList;
@@ -58,23 +76,26 @@ class _MovieTimePageState extends State<MovieTimePage> {
     for (var i = 0; i < 14; i++) {
       DateTime date = today.add(Duration(days: i));
       if (i == 0) {
-        mDatesList.add(DateVO(
+        mDatesList.add(MovieDateVO(
             "Today",
             DateFormat.LLL().format(date),
             DateFormat.d().format(date),
-            DateFormat('yyyy-MM-dd').format(date)));
+            DateFormat('yyyy-MM-dd').format(date),
+            date));
       } else if (i == 1) {
-        mDatesList.add(DateVO(
+        mDatesList.add(MovieDateVO(
             "Tomorrow",
             DateFormat.LLL().format(date),
             DateFormat.d().format(date),
-            DateFormat('yyyy-MM-dd').format(date)));
+            DateFormat('yyyy-MM-dd').format(date),
+            date));
       } else {
-        mDatesList.add(DateVO(
+        mDatesList.add(MovieDateVO(
             DateFormat.E().format(date),
             DateFormat.LLL().format(date),
             DateFormat.d().format(date),
-            DateFormat('yyyy-MM-dd').format(date)));
+            DateFormat('yyyy-MM-dd').format(date),
+            date));
       }
     }
   }
@@ -113,6 +134,7 @@ class _MovieTimePageState extends State<MovieTimePage> {
                 child: HorizontalMoviePlayingDatesListView(this.mDatesList,
                     (selectedDate) {
                   setState(() {
+                    this.selectedDate = selectedDate;
                     _getCinemaAndShowTimeByDate(selectedDate);
                   });
                 }),
@@ -125,14 +147,17 @@ class _MovieTimePageState extends State<MovieTimePage> {
               Container(
                 child: ListView.separated(
                     separatorBuilder: (context, index) => Divider(
-                      color: Colors.white54,
-                    ),
+                          color: Colors.white54,
+                        ),
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     itemCount: mCinemaTimeSlotsList?.length ?? 0,
                     itemBuilder: (BuildContext context, int index) {
                       return AvaliableCinemaView(mCinemaTimeSlotsList![index]!,
-                          () => _navigateToFoodAndBeverageView(context));
+                          (cinema, timeslot) {
+                        _navigateToFoodAndBeverageView(context, cinema,
+                            mCinemaTimeSlotsList![index], timeslot);
+                      },(cinema) {_navigateToCinemaDetail(context,cinema);},);
                     }),
               ),
             ],
@@ -141,12 +166,22 @@ class _MovieTimePageState extends State<MovieTimePage> {
       ),
     );
   }
-
-  void _navigateToFoodAndBeverageView(BuildContext context) {
+  void _navigateToCinemaDetail(BuildContext context, CinemaVO cinema){
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => FoodAndBeveragePage(),
+          builder: (context) => CinemaDetailPage(cinema),
+        ));
+  }
+
+  void _navigateToFoodAndBeverageView(BuildContext context, CinemaVO cinema,
+      CinemaDayTimeslotsVO cTimeSlot, timeslot) {
+    print("timeslot selected ${cTimeSlot} id ${timeslot.toString()}");
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FoodAndBeveragePage(
+              this.widget.mMovie, cinema, cTimeSlot, timeslot, selectedDate),
         ));
   }
 }
@@ -177,8 +212,10 @@ class LocationView extends StatelessWidget {
 
 class AvaliableCinemaView extends StatefulWidget {
   final CinemaDayTimeslotsVO mCinemaDayTimeSlots;
-  Function onTappedMovieTime;
-  AvaliableCinemaView(this.mCinemaDayTimeSlots, this.onTappedMovieTime);
+  Function(CinemaVO, TimeSlotVO) onTappedMovieTime;
+  Function(CinemaVO) onTappedCinema;
+
+  AvaliableCinemaView(this.mCinemaDayTimeSlots, this.onTappedMovieTime,this.onTappedCinema);
 
   @override
   State<AvaliableCinemaView> createState() => _AvaliableCinemaViewState();
@@ -207,9 +244,12 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
     return Container(
       child: Column(
         children: [
-          CinemaTitleView(widget.mCinemaDayTimeSlots.cinema ?? "_", () {
-            _onTappedShowDetail();
-          }),
+          GestureDetector(
+            onTap: () => this.widget.onTappedCinema(mCinema!),
+            child: CinemaTitleView(widget.mCinemaDayTimeSlots.cinema ?? "_", () {
+              _onTappedShowDetail();
+            }),
+          ),
           SizedBox(
             width: double.infinity,
             child: Wrap(
@@ -246,7 +286,9 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
                         padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
                         child: MovieTimeView(
                             widget.mCinemaDayTimeSlots.timeslots![index],
-                            () => this.widget.onTappedMovieTime()),
+                            (timeSlot) => this
+                                .widget
+                                .onTappedMovieTime(mCinema!, timeSlot)),
                       );
                     },
                   ),
@@ -264,16 +306,15 @@ class _AvaliableCinemaViewState extends State<AvaliableCinemaView> {
   }
 }
 
-
 class MovieTimeView extends StatelessWidget {
   final TimeSlotVO movieTimeSlot;
-  Function onTappedMoviewTime;
+  Function(TimeSlotVO) onTappedMoviewTime;
 
   MovieTimeView(this.movieTimeSlot, this.onTappedMoviewTime);
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onTappedMoviewTime(),
+      onTap: () => onTappedMoviewTime(movieTimeSlot),
       child: Container(
         decoration: BoxDecoration(
             color: _getBackgroundColor(this.movieTimeSlot.status ?? 0)
@@ -344,10 +385,8 @@ class TimeslotText extends StatelessWidget {
   }
 }
 
-
-
 class HorizontalMoviePlayingDatesListView extends StatefulWidget {
-  final List<DateVO> mDatesList;
+  final List<MovieDateVO> mDatesList;
   Function(String) onTappedDate;
   HorizontalMoviePlayingDatesListView(this.mDatesList, this.onTappedDate);
   @override
