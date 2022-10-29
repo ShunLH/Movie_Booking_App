@@ -34,4 +34,15 @@ class MovieDateTimeSlotDao{
   Box<MovieDateTimeSlotsVO> getMobvieDateTimeSlotsBox() {
     return Hive.box<MovieDateTimeSlotsVO>(BOX_NAME_MOVIE_DATE_TIMESLOTS_VO);
   }
+
+  ///Reactive
+
+  Stream<void> getAllMovieDateTimeSlotsByDateEventStream() {
+    return getMobvieDateTimeSlotsBox().watch();
+  }
+
+  Stream<List<MovieDateTimeSlotsVO>> getMovieDateTimeSlotsStream() {
+    return Stream.value(getAllMobvieDateTimeSlots());
+  }
+
 }

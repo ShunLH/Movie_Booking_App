@@ -1,6 +1,7 @@
 import 'package:movie_booking_app/data/vos/banner_vo.dart';
 import 'package:movie_booking_app/data/vos/checkout_request_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_timeslot_status_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/city_vo.dart';
 import 'package:movie_booking_app/data/vos/config_data_vo.dart';
@@ -18,6 +19,7 @@ import 'package:movie_booking_app/network/dataagents/retrofit_data_agent_impl.da
 import 'package:movie_booking_app/network/responses/basic_response.dart';
 import 'package:movie_booking_app/network/responses/get_checkout_response.dart';
 import 'package:movie_booking_app/network/responses/sign_in_response.dart';
+import 'package:movie_booking_app/persistence/daos/cinema_timeslot_status_dao.dart';
 import 'package:movie_booking_app/persistence/daos/config_data_dao.dart';
 import 'package:movie_booking_app/persistence/daos/payment_type_dao.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -59,7 +61,7 @@ class MovieModelImpl extends MovieModel {
   PaymentTypeDao mPaymentTypeDao = PaymentTypeDao();
   MovieDateTimeSlotDao mMovieDateTimeSlotsDao = MovieDateTimeSlotDao();
   ConfigDataDao mConfigDataDao = ConfigDataDao();
-
+  CinemaTimeSlotStatusDao mTimeSlotStatusDao = CinemaTimeSlotStatusDao();
   UserVO? mUserVO;
 
   @override
@@ -76,22 +78,20 @@ class MovieModelImpl extends MovieModel {
   }
 
   @override
-  Future<List<GenreVO>>? getGenres() {
-    return mDataAgent.getGenres()?.then((genres) async {
+  void getGenres() {
+    mDataAgent.getGenres()?.then((genres) async {
       mGenreDao.saveAllGenres(genres);
-      return Future.value(genres);
     });
   }
 
   @override
-  Future<MovieVO>? getMovieDetails(int movieId) {
-    return mDataAgent.getMovieDetail(movieId)?.then((movie) async {
+  void getMovieDetails(int movieId) {
+    mDataAgent.getMovieDetail(movieId)?.then((movie) async {
       MovieVO? movieFromList = mMovieDao.getMovieById(movie.id ?? 0);
-      print("save movie detail ${movieFromList.toString()}");
+      // print("save movie detail ${movieFromList.toString()}");
       movie.isNowPlaying = movieFromList?.isNowPlaying;
       movie.isCommingSoon = movieFromList?.isCommingSoon;
       mMovieDao.saveSingleMovie(movie);
-      return Future.value(movie);
     });
   }
 
@@ -109,8 +109,15 @@ class MovieModelImpl extends MovieModel {
   }
 
   @override
-  Future<List<CreditVO>>? getCreditsByMovie(int movieId) {
-    return mDataAgent.getCreditsByMovie(movieId);
+  void getCreditsByMovie(int movieId) {
+    mDataAgent.getCreditsByMovie(movieId)?.then((creditsList) async {
+      MovieVO? mMovie = mMovieDao.getMovieById(movieId);
+      mMovie?.creditList = creditsList;
+      if (mMovie != null) {
+        mMovieDao.saveSingleMovie(mMovie);
+      }
+      mCreditDao.saveAllCredits(creditsList);
+    });
   }
 
   @override
@@ -128,17 +135,31 @@ class MovieModelImpl extends MovieModel {
   }
 
   @override
-  Future<List<ConfigDataVO>>? getConfigsCinemaTimeSlots() {
+  void getConfigsCinemaTimeSlots() {
     mDataAgent.getConfig()?.then((responseList) async {
       mConfigDataDao.saveAllConfigs(responseList);
     });
-    return mDataAgent
+    mDataAgent
         .getConfig()
         ?.asStream()
         .map((response) => response
             .where((element) => element.key == "cinema_timeslot_status")
             .toList())
         .first;
+  }
+
+  @override
+  void getConfigCinemaTimeSlotStatus() {
+    mDataAgent.getConfig()?.then((responseList) async {
+      List<ConfigDataVO>? statusList = responseList
+          .where((element) => element.key == "cinema_timeslot_status")
+          .toList();
+      List valueList = statusList.first.value;
+      List<CinemaTimeSlotStatusVO> cinemaTimeSlotStatusList = valueList
+          .map((value) => CinemaTimeSlotStatusVO.fromJson(value))
+          .toList();
+      mTimeSlotStatusDao.saveAllTimeSlotStatus(cinemaTimeSlotStatusList);
+    });
   }
 
   @override
@@ -190,22 +211,20 @@ class MovieModelImpl extends MovieModel {
   }
 
   @override
-  Future<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDate(
-      String authorizationToken, String date) {
-    return mDataAgent
+  void getCinemaAndShowTimeByDate(String authorizationToken, String date) {
+    mDataAgent
         .getCinemaAndShowTimeByDate(authorizationToken, date)
         ?.then((timeslotsList) async {
       mMovieDateTimeSlotsDao.saveSingleMovieDateTimeSlotDaoByDate(
           MovieDateTimeSlotsVO(date, timeslotsList));
-      return Future.value(timeslotsList);
+      // return Future.value(timeslotsList);
     });
   }
 
   @override
-  Future<List<CinemaVO>>? getCinemasList(String? latestTime) {
-    return mDataAgent.getCinemasList(latestTime)?.then((cinemaList) async {
+  void getCinemasList(String? latestTime) {
+    mDataAgent.getCinemasList(latestTime)?.then((cinemaList) async {
       mCinemaDao.saveAllCinemas(cinemaList);
-      return Future.value(cinemaList);
     });
   }
 
@@ -226,9 +245,8 @@ class MovieModelImpl extends MovieModel {
   }
 
   @override
-  void getSnackCategoriesList(
-      String authorizationToken) {
-     mDataAgent
+  void getSnackCategoriesList(String authorizationToken) {
+    mDataAgent
         .getSnackCategoriesList(authorizationToken)
         ?.then((snackCategoriesList) async {
       mSnackCategoryDao.saveAllSnackCategories(snackCategoriesList);
@@ -253,8 +271,12 @@ class MovieModelImpl extends MovieModel {
   }
 
   @override
-  Future<List<CinemaVO>>? getCinemasFromDatabase() {
-    return Future.value(mCinemaDao.getAllCinemas());
+  Stream<List<CinemaVO>>? getCinemasFromDatabase() {
+    this.getCinemasList(null);
+    return mCinemaDao
+        .getAllCinemasEventStream()
+        .startWith(mCinemaDao.getAllCinemasStream())
+        .map((event) => mCinemaDao.getAllCinemas());
   }
 
   @override
@@ -295,13 +317,13 @@ class MovieModelImpl extends MovieModel {
   }
 
   @override
-  Future<MovieVO>? getMovieDetailsFromDatabase(int movieId) {
-    return Future.value(mMovieDao.getMovieById(movieId));
+  Stream<MovieVO?> getMovieDetailsFromDatabase(int movieId) {
+    return Stream.value(mMovieDao.getMovieById(movieId));
   }
 
   @override
   Stream<List<PaymentTypeVO>>? getPaymentTypesFromDatabase() {
-    this.getPaymentTypes(getLoginUser()?.token ?? "");
+    this.getPaymentTypes(this.getTokenFromDatabase());
     return mPaymentTypeDao
         .getAllPaymentTypeEventStream()
         .startWith(mPaymentTypeDao.getAllPaymentTypeEventStream())
@@ -310,7 +332,7 @@ class MovieModelImpl extends MovieModel {
 
   @override
   Stream<List<SnackCategoryVO>>? getSnackCategoriesListFromDatabase() {
-    this.getSnackCategoriesList(getLoginUser()?.token ?? "");
+    this.getSnackCategoriesList(this.getTokenFromDatabase());
     return mSnackCategoryDao
         .getAllSnackCategoriesEventStream()
         .startWith(mSnackCategoryDao.getAllSnackCategoriesStream())
@@ -319,11 +341,17 @@ class MovieModelImpl extends MovieModel {
 
   @override
   Stream<List<SnackVO>>? getSnacksListFromDatabase(int? categoryId) {
-    this.getSnacksList(getLoginUser()?.token ?? "",null);
+    this.getSnacksList(this.getTokenFromDatabase(), null);
     if (categoryId == null) {
-      return mSnackDao.getAllSnackEventStream().startWith(mSnackDao.getAllSnacks()).map((event) => mSnackDao.getAllSnacks());
+      return mSnackDao
+          .getAllSnackEventStream()
+          .startWith(mSnackDao.getAllSnacksStream())
+          .map((event) => mSnackDao.getAllSnacks());
     } else {
-      return Stream.value(mSnackDao.getSnacksByCategoryId(categoryId));
+      return mSnackDao
+          .getAllSnackEventStream()
+          .startWith(mSnackDao.getAllSnacksStream())
+          .map((event) => mSnackDao.getSnacksByCategoryId(categoryId));
     }
   }
 
@@ -335,23 +363,67 @@ class MovieModelImpl extends MovieModel {
   @override
   UserVO? getLoginUser() {
     mUserVO = (mUserDao.getAllUsers().isEmpty == false)
-        ? mUserDao.getAllUsers().first
+        ? mUserDao.getAllUsers()?.first
         : mUserVO;
     print("login user ${mUserDao.getAllUsers().first.toString()}");
+    // getLoginUserReactive().listen((user) {
+    //   print("login user ${user.toString()}");
+    //   mUserVO = user;
+    // });
     return mUserVO;
   }
 
   @override
-  Future<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDateFromDatabase(
-      String date) {
-    return Future.value(mMovieDateTimeSlotsDao
-            .getMovieDateTimeSlotsByDate(date)
-            ?.cinemaDayTimeSlotsList ??
-        []);
+  Stream<UserVO?> getLoginUserReactive() {
+    return mUserDao
+        .getAllUserEventStream()
+        .startWith(mUserDao.getAllUsersStream())
+        .map((event) => mUserDao.getAllUsers().first);
   }
 
   @override
-  Future<List<ConfigDataVO>>? getConfigsCinemaTimeSlotsFromDatabase() {
-    return Future.value(mConfigDataDao.getAllConfigs());
+  Stream<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDateFromDatabase(
+      String date) {
+    this.getCinemaAndShowTimeByDate(this.getTokenFromDatabase(), date);
+    return mMovieDateTimeSlotsDao
+        .getAllMovieDateTimeSlotsByDateEventStream()
+        .startWith(mMovieDateTimeSlotsDao.getMovieDateTimeSlotsStream())
+        .map((event) =>
+            mMovieDateTimeSlotsDao
+                .getMovieDateTimeSlotsByDate(date)
+                ?.cinemaDayTimeSlotsList ??
+            []);
+    // return Stream.value(mMovieDateTimeSlotsDao
+    //         .getMovieDateTimeSlotsByDate(date)
+    //         ?.cinemaDayTimeSlotsList ??
+    //     []);
+  }
+
+  @override
+  Stream<List<ConfigDataVO>>? getConfigsCinemaTimeSlotsFromDatabase() {
+    this.getConfigsCinemaTimeSlots();
+    return mConfigDataDao
+        .getAllConfigsEventStream()
+        .startWith(mConfigDataDao.getAllConfigDataStream())
+        .map((event) => mConfigDataDao.getAllConfigs());
+  }
+
+  @override
+  Stream<List<CinemaTimeSlotStatusVO>>?
+      getConfigCinemaTimeSlotStatusFromDatabase() {
+    this.getConfigCinemaTimeSlotStatus();
+    return mTimeSlotStatusDao
+        .getAllTimeSlotsStatusEventStream()
+        .startWith(mTimeSlotStatusDao.getAllTimeSlotStatusStream())
+        .map((event) => mTimeSlotStatusDao.getAllTimeSlotsStatus());
+  }
+
+  @override
+  Stream<List<CreditVO>>? getCreditsByMovieFromDatabase(int movieId) {
+    this.getCreditsByMovie(movieId);
+    return mCreditDao
+        .getAllCreditsEventStream()
+        .startWith(mCreditDao.getAllCreditsStream())
+        .map((event) => mMovieDao.getMovieById(movieId)?.creditList ?? []);
   }
 }

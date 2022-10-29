@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:movie_booking_app/data/models/movie_model_impl.dart';
 import 'package:movie_booking_app/data/vos/banner_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
+import 'package:movie_booking_app/data/vos/cinema_timeslot_status_vo.dart';
 import 'package:movie_booking_app/data/vos/cinema_vo.dart';
 import 'package:movie_booking_app/data/vos/city_vo.dart';
 import 'package:movie_booking_app/data/vos/config_data_vo.dart';
@@ -60,10 +61,12 @@ void main() async{
   Hive.registerAdapter(CinemaDayTimeslotsVOAdapter());
   Hive.registerAdapter(ConfigDataVOAdapter());
   Hive.registerAdapter(MovieDateTimeSlotsVOAdapter());
+  Hive.registerAdapter(CinemaTimeSlotStatusVOAdapter());
   //
   await Hive.openBox<UserVO>(BOX_NAME_USER_VO);
   await Hive.openBox<BannerVO>(BOX_NAME_BANNER_VO);
   await Hive.openBox<MovieVO>(BOX_NAME_MOVIE_VO);
+  await Hive.openBox<CreditVO>(BOX_NAME_CREDIT_VO);
   await Hive.openBox<GenreVO>(BOX_NAME_GENRE_VO);
   await Hive.openBox<CinemaVO>(BOX_NAME_CINEMA_VO);
   await Hive.openBox<CityVO>(BOX_NAME_CITY_VO);
@@ -72,6 +75,7 @@ void main() async{
   await Hive.openBox<PaymentTypeVO>(BOX_NAME_PAYMENT_TYPE_VO);
   await Hive.openBox<ConfigDataVO>(BOX_NAME_CONFIG_DATA_VO);
   await Hive.openBox<MovieDateTimeSlotsVO>(BOX_NAME_MOVIE_DATE_TIMESLOTS_VO);
+  await Hive.openBox<CinemaTimeSlotStatusVO>(BOX_NAME_CINEMA_TIMESLOT_STATUS_VO);
 
   runApp(MyApp());
 }

@@ -45,13 +45,14 @@ class MovieVOAdapter extends TypeAdapter<MovieVO> {
       fields[25] as int?,
       fields[26] as bool?,
       fields[27] as bool?,
+      (fields[28] as List?)?.cast<CreditVO>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, MovieVO obj) {
     writer
-      ..writeByte(28)
+      ..writeByte(29)
       ..writeByte(0)
       ..write(obj.adult)
       ..writeByte(1)
@@ -107,7 +108,9 @@ class MovieVOAdapter extends TypeAdapter<MovieVO> {
       ..writeByte(26)
       ..write(obj.isNowPlaying)
       ..writeByte(27)
-      ..write(obj.isCommingSoon);
+      ..write(obj.isCommingSoon)
+      ..writeByte(28)
+      ..write(obj.creditList);
   }
 
   @override
@@ -167,6 +170,9 @@ MovieVO _$MovieVOFromJson(Map<String, dynamic> json) => MovieVO(
       json['vote_count'] as int?,
       json['isNowPlaying'] as bool?,
       json['isCommingSoon'] as bool?,
+      (json['creditList'] as List<dynamic>?)
+          ?.map((e) => CreditVO.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$MovieVOToJson(MovieVO instance) => <String, dynamic>{
@@ -198,4 +204,5 @@ Map<String, dynamic> _$MovieVOToJson(MovieVO instance) => <String, dynamic>{
       'vote_count': instance.voteCount,
       'isNowPlaying': instance.isNowPlaying,
       'isCommingSoon': instance.isCommingSoon,
+      'creditList': instance.creditList,
     };

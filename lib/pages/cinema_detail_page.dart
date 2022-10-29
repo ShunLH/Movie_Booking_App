@@ -92,7 +92,7 @@ class CinemaFacilitiesView extends StatelessWidget {
               direction: Axis.horizontal,
               alignment: WrapAlignment.start,
               children: (mCinema?.facilities != null)
-                  ? mCinema!.facilities!.map((facility) {
+                  ? mCinema.facilities!.map((facility) {
                       return ChipView(
                         textStr: facility.title ?? "",
                         iconURL: facility.img,

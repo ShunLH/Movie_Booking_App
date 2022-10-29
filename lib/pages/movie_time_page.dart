@@ -51,20 +51,20 @@ class _MovieTimePageState extends State<MovieTimePage> {
 
   void _getCinemaAndShowTimeByDate(String dateString) {
     print("dateString ${dateString}");
-    mMovieModel
-        .getCinemaAndShowTimeByDate(
-            mMovieModel.getTokenFromDatabase(), dateString)
-        ?.then((timeSlotsList) {
-      setState(() {
-        mCinemaTimeSlotsList = timeSlotsList;
-      });
-    });
+    // mMovieModel
+    //     .getCinemaAndShowTimeByDate(
+    //         mMovieModel.getTokenFromDatabase(), dateString)
+    //     ?.then((timeSlotsList) {
+    //   setState(() {
+    //     mCinemaTimeSlotsList = timeSlotsList;
+    //   });
+    // });
 
     /// Database
     mMovieModel
         .getCinemaAndShowTimeByDateFromDatabase(
         dateString)
-        ?.then((timeSlotsList) {
+        ?.listen((timeSlotsList) {
       setState(() {
         mCinemaTimeSlotsList = timeSlotsList;
       });

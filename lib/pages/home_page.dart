@@ -46,32 +46,36 @@ class _MyHomePageState extends State<MyHomePage> {
       debugPrint(error.toString());
     });
 
-    movieModel.getCinemasList("")?.then((cinemasList) {
-      setState(() {
-        // dataRepository.cinemaList = cinemasList;
-      });
-    });
+    // movieModel.getCinemasList("")?.then((cinemasList) {
+    //   setState(() {
+    //     // dataRepository.cinemaList = cinemasList;
+    //   });
+    // });
 
   /// Database
-    movieModel.getCinemasFromDatabase()?.then((cinemasList) {
+    movieModel.getCinemasFromDatabase()?.listen((cinemasList) {
       setState(() {
         dataRepository.cinemaList = cinemasList;
       });
     });
 
-    movieModel.getConfigsCinemaTimeSlots()?.then((configList) {
-      dataRepository.cinemaConfigList = configList;
-      List valueList = configList.first.value;
-      dataRepository.cinemaTimeSlotStatusList = valueList.map((value) => CinemaTimeSlotStatusVO.fromJson(value)).toList();
-      // print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
-
-    });
+    // movieModel.getConfigsCinemaTimeSlots()?.listen((configList) {
+    //   dataRepository.cinemaConfigList = configList;
+    //   List valueList = configList.first.value;
+    //   dataRepository.cinemaTimeSlotStatusList = valueList.map((value) => CinemaTimeSlotStatusVO.fromJson(value)).toList();
+    //   // print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
+    //
+    // });
     /// Database
-    movieModel.getConfigsCinemaTimeSlotsFromDatabase()?.then((configList) {
-      dataRepository.cinemaConfigList = configList;
-      List valueList = configList.first.value;
-      dataRepository.cinemaTimeSlotStatusList = valueList.map((value) => CinemaTimeSlotStatusVO.fromJson(value)).toList();
-      // print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
+    // movieModel.getConfigsCinemaTimeSlotsFromDatabase()?.listen((configList) {
+    //   dataRepository.cinemaConfigList = configList;
+    //   List valueList = configList.first.value;
+    //   dataRepository.cinemaTimeSlotStatusList = valueList.map((value) => CinemaTimeSlotStatusVO.fromJson(value)).toList();
+    //   // print(" timeSlots ${dataRepository.cinemaTimeSlotStatusList.toString()}");
+    //
+    // });
+    movieModel.getConfigCinemaTimeSlotStatusFromDatabase()?.listen((statusList){
+      dataRepository.cinemaTimeSlotStatusList = statusList;
 
     });
 
@@ -174,7 +178,9 @@ class _MovieCategoryTabSectionViewState
 
   MovieModel? mMovieModel = MovieModelImpl();
 
-  List<MovieVO>? moviesList;
+  List<MovieVO>? nowPlayingMovieList;
+  List<MovieVO>? commingSoonMovieList;
+
 
   @override
   void initState() {
@@ -193,7 +199,7 @@ class _MovieCategoryTabSectionViewState
       // });
       mMovieModel?.getNowPlayingMoviesFromDatabase()?.listen((movieList) {
         setState(() {
-          moviesList = movieList;
+          nowPlayingMovieList = movieList;
         });
       }).onError((error) {
         debugPrint(error.toString());
@@ -208,7 +214,7 @@ class _MovieCategoryTabSectionViewState
       // });
       mMovieModel?.getCommingSoonMoviesFromDatabase()?.listen((movieList) {
         setState(() {
-          moviesList = movieList;
+          commingSoonMovieList = movieList;
         });
       }).onError((error) {
         debugPrint(error.toString());
@@ -261,7 +267,7 @@ class _MovieCategoryTabSectionViewState
           ),
         ),
         SizedBox(height: MARGIN_LARGE),
-        MoviesGridSectionView(moviesList,selectedIndex == 1 ? true : false,(movieID) => this.widget.onTappedMovie(selectedIndex == 1 ? true : false , movieID)),
+        MoviesGridSectionView(selectedIndex == 1 ? commingSoonMovieList : nowPlayingMovieList,selectedIndex == 1 ? true : false,(movieID) => this.widget.onTappedMovie(selectedIndex == 1 ? true : false , movieID)),
       ],
     );
   }

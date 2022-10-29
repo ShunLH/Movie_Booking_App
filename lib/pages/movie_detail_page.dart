@@ -34,22 +34,27 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
   void initState() {
     super.initState();
     print("movie id ===> ${widget.movieId}");
-    mMovieModel?.getMovieDetails(widget.movieId)?.then((movie) {
+    // mMovieModel?.getMovieDetails(widget.movieId)?.then((movie) {
+    //   setState(() {
+    //     this.mMovie = movie;
+    //   });
+    // });
+
+    mMovieModel?.getMovieDetailsFromDatabase(widget.movieId)?.listen((movie) {
       setState(() {
         this.mMovie = movie;
       });
     });
 
-    mMovieModel?.getMovieDetailsFromDatabase(widget.movieId)?.then((movie) {
+    // mMovieModel?.getCreditsByMovie(widget.movieId)?.then((creditsList) {
+    //   setState(() {
+    //     this.mActorsList =
+    //         creditsList.where((credit) => credit.isActor()).toList();
+    //   });
+    // });
+    mMovieModel?.getCreditsByMovieFromDatabase(widget.movieId)?.listen((creditsList) {
       setState(() {
-        this.mMovie = movie;
-      });
-    });
-
-    mMovieModel?.getCreditsByMovie(widget.movieId)?.then((creditsList) {
-      setState(() {
-        this.mActorsList =
-            creditsList.where((credit) => credit.isActor()).toList();
+        this.mActorsList = creditsList.where((credit) => credit.isActor()).toList();
       });
     });
   }

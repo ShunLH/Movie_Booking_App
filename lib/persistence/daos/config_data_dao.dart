@@ -27,4 +27,15 @@ class ConfigDataDao{
   Box<ConfigDataVO> getConfigBox() {
     return Hive.box<ConfigDataVO>(BOX_NAME_CONFIG_DATA_VO);
   }
+
+  ///Reactive
+
+  Stream<void> getAllConfigsEventStream() {
+    return getConfigBox().watch();
+  }
+
+  Stream<List<ConfigDataVO>> getAllConfigDataStream() {
+    return Stream.value(getAllConfigs());
+  }
+
 }

@@ -7,6 +7,7 @@ import 'package:movie_booking_app/data/vos/production_countries_vo.dart';
 import 'package:movie_booking_app/data/vos/spoken_languages_vo.dart';
 
 import '../../persistence/hive_constants.dart';
+import 'credit_vo.dart';
 part 'movie_vo.g.dart';
 
 @HiveType(typeId: HYPE_TYPE_ID_MOVIE_VO,adapterName: "MovieVOAdapter")
@@ -122,6 +123,8 @@ class MovieVO {
   @HiveField(27)
   bool? isCommingSoon;
 
+  @HiveField(28)
+  List<CreditVO>? creditList;
 
 
   MovieVO(
@@ -152,7 +155,9 @@ class MovieVO {
       this.voteAverage,
       this.voteCount,
       this.isNowPlaying,
-      this.isCommingSoon);
+      this.isCommingSoon,
+      this.creditList
+      );
 
   factory MovieVO.fromJson(Map<String,dynamic> json) => _$MovieVOFromJson(json);
   Map<String,dynamic> toJson() => _$MovieVOToJson(this);
