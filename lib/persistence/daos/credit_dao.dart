@@ -25,4 +25,14 @@ class CreditDao{
   Box<CreditVO> getCreditBox() {
     return Hive.box<CreditVO>(BOX_NAME_CREDIT_VO);
   }
+
+  ///Reactive
+
+  Stream<void> getAllCreditsEventStream() {
+    return getCreditBox().watch();
+  }
+
+  Stream<List<CreditVO>> getAllCreditsStream() {
+    return Stream.value(getAllCredits());
+  }
 }

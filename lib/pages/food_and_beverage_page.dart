@@ -43,19 +43,19 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
     super.initState();
     SnackCategoryVO allCategories =
         SnackCategoryVO(null, "All", "All Categories", 0, "", "", "");
-    mMovieModel
-        .getSnackCategoriesList(mMovieModel.getTokenFromDatabase())
-        ?.then((snackCategories) {
-      setState(() {
-        mSncakCategoriesList = snackCategories;
-        mSncakCategoriesList?.insert(0, allCategories);
-        _getSnackListByCategory(null);
-      });
-    });
+    // mMovieModel
+    //     .getSnackCategoriesList(mMovieModel.getTokenFromDatabase())
+    //     ?.then((snackCategories) {
+    //   setState(() {
+    //     mSncakCategoriesList = snackCategories;
+    //     mSncakCategoriesList?.insert(0, allCategories);
+    //     _getSnackListByCategory(null);
+    //   });
+    // });
 
     mMovieModel
         .getSnackCategoriesListFromDatabase()
-        ?.then((snackCategories) {
+        ?.listen((snackCategories) {
       setState(() {
         mSncakCategoriesList = snackCategories;
         mSncakCategoriesList?.insert(0, allCategories);
@@ -65,16 +65,16 @@ class _FoodAndBeveragePageState extends State<FoodAndBeveragePage> {
   }
 
   void _getSnackListByCategory(int? categoryId) {
-    mMovieModel
-        .getSnacksList(mMovieModel.getTokenFromDatabase(), categoryId)
-        ?.then((snacksList) {
-      setState(() {
-        mSncaksList = snacksList;
-      });
-    });
+    // mMovieModel
+    //     .getSnacksList(mMovieModel.getTokenFromDatabase(), categoryId)
+    //     ?.then((snacksList) {
+    //   setState(() {
+    //     mSncaksList = snacksList;
+    //   });
+    // });
     mMovieModel
         .getSnacksListFromDatabase(categoryId)
-        ?.then((snacksList) {
+        ?.listen((snacksList) {
       setState(() {
         mSncaksList = snacksList;
       });

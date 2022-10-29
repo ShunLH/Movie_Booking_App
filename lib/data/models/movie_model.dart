@@ -20,37 +20,38 @@ import '../vos/ticket_vo.dart';
 import '../vos/user_vo.dart';
 
 abstract class MovieModel {
-  Future<List<MovieVO>>? getNowPlayingMovies(int page);
-  Future<List<MovieVO>>? getCommingSoonMovies(int page);
-  Future<List<GenreVO>>? getGenres();
+  void getNowPlayingMovies(int page);
+  void getCommingSoonMovies(int page);
+  void getGenres();
   Future<MovieVO>? getMovieDetails(int movieId);
   Future<List<CreditVO>>? getCreditsByMovie(int movieId);
-  Future<List<CityVO>>? getCities();
-  Future<List<BannerVO>>? getBanners();
+  void getCities();
+  void getBanners();
   Future<List<ConfigDataVO>>? getConfigsCinemaTimeSlots();
   Future<BasicResponse>? getOTP(String phNumber);
   Future<SignInResponse>? signInWithPhone(String phNumber,String otp);
   Future<BasicResponse>? signInWithGoogle(String accessToken,String name);
   Future<BasicResponse>? setCity(String authorizationToken,String cityId);
-  Future<List<SnackVO>>? getSnacksList(String authorizationToken,int? categoryId);
-  Future<List<SnackCategoryVO>>? getSnackCategoriesList(String authorizationToken);
-  Future<List<PaymentTypeVO>>? getPaymentTypes(String authorizationToken);
+  void getSnacksList(String authorizationToken,int? categoryId);
+  void getSnackCategoriesList(String authorizationToken);
+  void getPaymentTypes(String authorizationToken);
   Future<List<CinemaVO>>? getCinemasList(String? latestTime);
   Future<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDate(String authorizationToken,String date);
   Future<List<SeatVO>>? getSeatingPlanByShowTime(String authorizationToken,int cinemaDayTimeId,String bookingDate);
   Future<GetCheckOutResponse>? requestCheckout(String authorizationToken,CheckOutRequestVO checkoutRequestBody);
 
+
   /// Database
-  Future<List<MovieVO>>? getNowPlayingMoviesFromDatabase();
-  Future<List<MovieVO>>? getCommingSoonMoviesFromDatabase();
-  Future<List<GenreVO>>? getGenresFromDatabase();
+  Stream<List<MovieVO>>? getNowPlayingMoviesFromDatabase();
+  Stream<List<MovieVO>>? getCommingSoonMoviesFromDatabase();
+  Stream<List<GenreVO>>? getGenresFromDatabase();
   Future<MovieVO>? getMovieDetailsFromDatabase(int movieId);
-  Future<List<BannerVO>>? getBannersFromDatabase();
-  Future<List<CityVO>>? getCitiesFromDatabase();
+  Stream<List<BannerVO>>? getBannersFromDatabase();
+  Stream<List<CityVO>>? getCitiesFromDatabase();
   Future<List<CinemaVO>>? getCinemasFromDatabase();
-  Future<List<SnackVO>>? getSnacksListFromDatabase(int? categoryId);
-  Future<List<SnackCategoryVO>>? getSnackCategoriesListFromDatabase();
-  Future<List<PaymentTypeVO>>? getPaymentTypesFromDatabase();
+  Stream <List<SnackVO>>? getSnacksListFromDatabase(int? categoryId);
+  Stream<List<SnackCategoryVO>>? getSnackCategoriesListFromDatabase();
+  Stream<List<PaymentTypeVO>>? getPaymentTypesFromDatabase();
   Future<List<ConfigDataVO>>? getConfigsCinemaTimeSlotsFromDatabase();
   Future<List<CinemaDayTimeslotsVO>>? getCinemaAndShowTimeByDateFromDatabase(String date);
   UserVO? getLoginUser();

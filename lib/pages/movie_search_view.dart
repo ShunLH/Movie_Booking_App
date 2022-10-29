@@ -26,13 +26,13 @@ class _MovieSearchViewState extends State<MovieSearchView> {
   @override
   void initState() {
     super.initState();
-    mMovieModel?.getNowPlayingMovies(1)?.then((movieList){
+    mMovieModel?.getNowPlayingMoviesFromDatabase()?.listen((movieList){
       setState(() {
         movieResultList = movieList;
       });
     });
 
-    mMovieModel?.getGenres()?.then((genreList) {
+    mMovieModel?.getGenresFromDatabase()?.listen((genreList) {
       setState(() {
         movieGenresList = genreList;
       });

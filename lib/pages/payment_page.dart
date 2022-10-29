@@ -43,18 +43,18 @@ class _PaymentPageState extends State<PaymentPage> {
   void initState() {
     super.initState();
     var token = mMovieModel.getTokenFromDatabase();
-    mMovieModel
-        .getPaymentTypes(mMovieModel.getTokenFromDatabase())
-        ?.then((paymentTypesList) {
-      setState(() {
-        this.paymentTypes = paymentTypesList;
-      });
-    });
+    // mMovieModel
+    //     .getPaymentTypes(mMovieModel.getTokenFromDatabase())
+    //     ?.then((paymentTypesList) {
+    //   setState(() {
+    //     this.paymentTypes = paymentTypesList;
+    //   });
+    // });
 
     /// Database
     mMovieModel
         .getPaymentTypesFromDatabase()
-        ?.then((paymentTypesList) {
+        ?.listen((paymentTypesList) {
       setState(() {
         this.paymentTypes = paymentTypesList;
       });

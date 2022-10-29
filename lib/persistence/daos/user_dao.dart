@@ -33,4 +33,14 @@ class UserDao{
   Box<UserVO> getUserBox() {
     return Hive.box<UserVO>(BOX_NAME_USER_VO);
   }
+
+  ///Reactive
+
+  Stream<void> getAllUserEventStream() {
+    return getUserBox().watch();
+  }
+
+  Stream<List<UserVO?>> getAllUsersStream(){
+    return Stream.value(getAllUsers() ?? []);
+  }
 }

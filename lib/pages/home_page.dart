@@ -30,19 +30,19 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    movieModel.getBanners()?.then((bannerList) {
-      setState(() {
-        this.mBannerList = bannerList;
-      });
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
+    // movieModel.getBanners()?.then((bannerList) {
+    //   setState(() {
+    //     this.mBannerList = bannerList;
+    //   });
+    // }).catchError((error) {
+    //   debugPrint(error.toString());
+    // });
     /// Database
-    movieModel.getBannersFromDatabase()?.then((bannerList) {
+    movieModel.getBannersFromDatabase()?.listen((bannerList) {
       setState(() {
         this.mBannerList = bannerList;
       });
-    }).catchError((error) {
+    }).onError((error) {
       debugPrint(error.toString());
     });
 
@@ -184,33 +184,33 @@ class _MovieCategoryTabSectionViewState
 
   void _getMovieList(){
     if (selectedIndex == 0){
-      mMovieModel?.getNowPlayingMovies(1)?.then((movieList) {
+      // mMovieModel?.getNowPlayingMovies(1)?.then((movieList) {
+      //   setState(() {
+      //     moviesList = movieList;
+      //   });
+      // }).catchError((error) {
+      //   debugPrint(error.toString());
+      // });
+      mMovieModel?.getNowPlayingMoviesFromDatabase()?.listen((movieList) {
         setState(() {
           moviesList = movieList;
         });
-      }).catchError((error) {
-        debugPrint(error.toString());
-      });
-      mMovieModel?.getNowPlayingMoviesFromDatabase()?.then((movieList) {
-        setState(() {
-          moviesList = movieList;
-        });
-      }).catchError((error) {
+      }).onError((error) {
         debugPrint(error.toString());
       });
     }else{
-      mMovieModel?.getCommingSoonMovies(1)?.then((movieList) {
+      // mMovieModel?.getCommingSoonMovies(1)?.then((movieList) {
+      //   setState(() {
+      //     moviesList = movieList;
+      //   });
+      // }).catchError((error) {
+      //   debugPrint(error.toString());
+      // });
+      mMovieModel?.getCommingSoonMoviesFromDatabase()?.listen((movieList) {
         setState(() {
           moviesList = movieList;
         });
-      }).catchError((error) {
-        debugPrint(error.toString());
-      });
-      mMovieModel?.getCommingSoonMoviesFromDatabase()?.then((movieList) {
-        setState(() {
-          moviesList = movieList;
-        });
-      }).catchError((error) {
+      }).onError((error) {
         debugPrint(error.toString());
       });
     }

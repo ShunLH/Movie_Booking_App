@@ -32,10 +32,41 @@ class MovieDao{
     return getMovieBox().get(movieId);
   }
 
-
   Box<MovieVO> getMovieBox(){
     return Hive.box<MovieVO>(BOX_NAME_MOVIE_VO);
   }
+  List<MovieVO> getNowPlayingMovies() {
+    if (getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)) {
+      return getAllMovies()
+          .where((element) => element?.isNowPlaying ?? false).toList();
+    } else {
+      return [];
+    }
+  }
+  List<MovieVO> getCommingSoonMovies() {
+    if (getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)) {
+      return getAllMovies()
+          .where((element) => element?.isCommingSoon ?? false).toList();
+    } else {
+      return [];
+    }
+  }
+  /// Reactive Programming
 
+  Stream<void> getAllMoviesEventStream() {
+    return getMovieBox().watch();
+  }
+
+  Stream<List<MovieVO>> getNowPlayingMoviesStream() {
+    return Stream.value(getAllMovies()
+        .where((element) => element?.isNowPlaying ?? false)
+        .toList());
+  }
+
+  Stream<List<MovieVO>> getCommingSoonMoviesStream() {
+    return Stream.value(getAllMovies()
+        .where((element) => element?.isCommingSoon ?? false)
+        .toList());
+  }
 
 }

@@ -25,4 +25,13 @@ class SnackCategoryDao{
   Box<SnackCategoryVO> getSnackCategoryBox() {
     return Hive.box<SnackCategoryVO>(BOX_NAME_SNACK_CATEGORY_VO);
   }
+  ///Reactive
+
+  Stream<void> getAllSnackCategoriesEventStream() {
+    return getSnackCategoryBox().watch();
+  }
+
+  Stream<List<SnackCategoryVO>> getAllSnackCategoriesStream(){
+    return Stream.value(getAllSnackCategories());
+  }
 }

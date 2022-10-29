@@ -24,4 +24,13 @@ class GenreDao{
   Box<GenreVO> getGenreBox() {
     return Hive.box<GenreVO>(BOX_NAME_GENRE_VO);
   }
+  ///Reactive
+
+  Stream<void> getAllGenreEventStream() {
+    return getGenreBox().watch();
+  }
+
+  Stream<List<GenreVO>> getAllGenersStream() {
+    return Stream.value(getAllGenres());
+  }
 }

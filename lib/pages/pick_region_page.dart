@@ -26,17 +26,17 @@ class _PickRegionPageState extends State<PickRegionPage> {
   @override
   void initState() {
     super.initState();
-        movieModel.getCities()?.then((cities) {
-      setState(() {
-        this.citiesList = cities;
-      });
-    }).catchError((error) => debugPrint(error.toString()));
+    //     movieModel.getCities()?.then((cities) {
+    //   setState(() {
+    //     this.citiesList = cities;
+    //   });
+    // }).catchError((error) => debugPrint(error.toString()));
     /// Database
-    movieModel.getCitiesFromDatabase()?.then((cities) {
+    movieModel.getCitiesFromDatabase()?.listen((cities) {
       setState(() {
         this.citiesList = cities;
       });
-    }).catchError((error) => debugPrint(error.toString()));
+    }).onError((error) => debugPrint(error.toString()));
   }
 
 
