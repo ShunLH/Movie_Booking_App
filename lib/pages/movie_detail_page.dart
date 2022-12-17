@@ -10,9 +10,12 @@ import 'package:movie_booking_app/resources/strings.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 import 'package:movie_booking_app/widgets/gradient_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../resources/dimens.dart';
 import '../viewItems/cast_view.dart';
 import '../widgets/design_button_view.dart';
+import '../widgets/wrapped_casts_list_view.dart';
 import 'movie_time_page.dart';
 
 class MovieDetailsPage extends StatefulWidget {
@@ -228,7 +231,7 @@ class NotificationButtonView extends StatelessWidget {
       height: DONE_BTN_HEIGHT,
       padding: EdgeInsets.symmetric(horizontal: MARGIN_SMALL),
       decoration: BoxDecoration(
-          color: THEME_COLOR,
+          color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
           borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
       child: TextButton(
         onPressed: () {
@@ -264,7 +267,9 @@ class CastSectionView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TitleTextView(CAST_TITLE),
-          HorizontalCastListView(castsList),
+          (ConfigClass.layout == "List") ? HorizontalCastListView(castsList) :
+          WrappedCastsListView(castsList),
+          // HorizontalCastListView(castsList),
         ],
       ),
     );
@@ -535,7 +540,7 @@ class GenreChipView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      backgroundColor: THEME_COLOR,
+      backgroundColor: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
       label: Text(
         genreText,
         style: TextStyle(
@@ -708,7 +713,7 @@ class MovieDetailsYearView extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
       height: MARGIN_XXLARGE,
       decoration: BoxDecoration(
-        color: THEME_COLOR,
+        color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
         borderRadius: BorderRadius.circular(MARGIN_LARGE),
       ),
       child: Center(
@@ -784,6 +789,6 @@ class BookingButtonView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DesignButtonView(
-        "Booking", THEME_COLOR, () => this.onTappedBooking());
+        "Booking", THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR], () => this.onTappedBooking());
   }
 }

@@ -4,6 +4,8 @@ import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/widgets/image_icon_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../resources/strings.dart';
 
 class CancelationPolicyView extends StatelessWidget {
@@ -15,7 +17,7 @@ class CancelationPolicyView extends StatelessWidget {
       decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.9),
           borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
-          border: Border.all(color: THEME_COLOR)),
+          border: Border.all(color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR])),
       padding: EdgeInsets.symmetric(
           horizontal: MARGIN_MEDIUM, vertical: MARGIN_MEDIUM_2),
       child: Column(
@@ -56,7 +58,7 @@ class CloseButtonView extends StatelessWidget {
       width: MediaQuery.of(context).size.width * 0.8,
       height: DONE_BTN_HEIGHT,
       decoration: BoxDecoration(
-          color: THEME_COLOR,
+          color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
           borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
       child: TextButton(
         onPressed: () {

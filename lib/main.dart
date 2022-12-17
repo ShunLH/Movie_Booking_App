@@ -209,7 +209,7 @@ class _MovieAppState extends State<MovieApp> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: THEME_COLOR,
+        selectedItemColor: ConfigClass.themeColor,
         onTap: _onItemTapped,
       ),
     );

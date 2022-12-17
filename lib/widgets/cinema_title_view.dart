@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/config/environment_config.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../config/config_values.dart';
 import '../resources/colors.dart';
 import '../resources/strings.dart';
 
@@ -35,7 +37,7 @@ class SeeDetailsButtonView extends StatelessWidget {
         SEE_DETAILS_TITLE,
         style: TextStyle(
           decoration: TextDecoration.underline,
-          color: THEME_COLOR,
+          color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
         ),
       ),
     );

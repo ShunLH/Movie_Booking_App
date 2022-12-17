@@ -32,6 +32,8 @@ class BannerVO {
   @JsonKey(name: "updated_at")
   String? updatedAt;
 
+  bool? isSelected = false;
+
 
   BannerVO(this.id, this.title, this.url, this.isActive, this.createdAt,
       this.updatedAt);

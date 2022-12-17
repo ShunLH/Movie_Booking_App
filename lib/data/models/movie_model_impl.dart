@@ -342,16 +342,28 @@ class MovieModelImpl extends MovieModel {
   @override
   Stream<List<SnackVO>>? getSnacksListFromDatabase(int? categoryId) {
     this.getSnacksList(this.getTokenFromDatabase(), null);
-    if (categoryId == null) {
-      return mSnackDao
-          .getAllSnackEventStream()
-          .startWith(mSnackDao.getAllSnacksStream())
-          .map((event) => mSnackDao.getAllSnacks());
+    if (categoryId == null || categoryId == 0){
+      print("categoryId ${categoryId}");
+      return Stream.value(mSnackDao.getAllSnacks());
+      // return mSnackDao
+      //     .getAllSnackEventStream()
+      //     .startWith(mSnackDao.getAllSnacksStream())
+      // .map((event) {
+      //   if  (categoryId == null) {
+      //     return mSnackDao.getAllSnacks();
+      //   }else{
+      //     return mSnackDao.getSnacksByCategoryId(categoryId);
+      //   }
+      // });
+      //     .map((event) => mSnackDao.getAllSnacks());
     } else {
-      return mSnackDao
-          .getAllSnackEventStream()
-          .startWith(mSnackDao.getAllSnacksStream())
-          .map((event) => mSnackDao.getSnacksByCategoryId(categoryId));
+      print("categoryId not null ${categoryId}");
+
+      return Stream.value(mSnackDao.getSnacksByCategoryId(categoryId));
+      // return mSnackDao
+      //     .getAllSnackEventStream()
+      //     .startWith(mSnackDao.getAllSnacksByIdStream(categoryId))
+      //     .map((event) => mSnackDao.getSnacksByCategoryId(categoryId));
     }
   }
 

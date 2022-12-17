@@ -5,6 +5,8 @@ import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../data/vos/cinema_vo.dart';
 import '../viewItems/facility_item_view.dart';
 
@@ -96,7 +98,7 @@ class CinemaFacilitiesView extends StatelessWidget {
                       return ChipView(
                         textStr: facility.title ?? "",
                         iconURL: facility.img,
-                        color: THEME_COLOR,
+                        color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
                         backgroundColor: PRIMARY_COLOR,
                         fontSize: TEXT_CARD_SMALL,
                       );
@@ -133,7 +135,7 @@ class CinemaAddressTextView extends StatelessWidget {
         ),
         Image.asset(
           NAVIGATION_ICON_ASSETS_URL,
-          color: THEME_COLOR,
+          color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
           width: MARGIN_XLARGE,
           height: MARGIN_XLARGE,
         ),
@@ -202,7 +204,7 @@ class ChipView extends StatelessWidget {
   ChipView(
       {required this.textStr,
       this.color = PRIMARY_COLOR,
-      this.backgroundColor = THEME_COLOR,
+      this.backgroundColor,
       this.fontSize = 10.0,
       this.iconURL = null});
 

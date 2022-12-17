@@ -3,6 +3,8 @@ import 'package:movie_booking_app/data/vos/snack_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../resources/strings.dart';
 
 class FoodItemView extends StatelessWidget {
@@ -51,7 +53,7 @@ class FoodItemView extends StatelessWidget {
             child: Text(
               "${mSnack?.price}",
               style: TextStyle(
-                color: THEME_COLOR,
+                color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
                 fontSize: TEXT_CARD_SMALL,
                 fontWeight: FontWeight.w800,
               ),
@@ -63,7 +65,7 @@ class FoodItemView extends StatelessWidget {
               width: (MediaQuery.of(context).size.width / 2) - 36,
               height: ADD_BUTTON_HEIGHT,
               decoration: BoxDecoration(
-                color: THEME_COLOR,
+                color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
                 borderRadius: BorderRadius.all(
                   Radius.circular(MARGIN_XSMALL),
                 ),

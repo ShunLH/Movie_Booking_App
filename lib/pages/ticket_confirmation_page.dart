@@ -9,6 +9,8 @@ import 'package:movie_booking_app/viewItems/date_time_location_view.dart';
 import 'package:movie_booking_app/widgets/separator_line_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../data/vos/movie_vo.dart';
 import '../data/vos/ticket_vo.dart';
 import '../widgets/corner_separator_view.dart';
@@ -209,7 +211,7 @@ class TicketDetailInfoView extends StatelessWidget {
           SizedBox(height: MARGIN_CARD_MEDIUM_1),
           Text(getCinemaNameById(mTicketVO?.cinema_id ?? 0),
             style: TextStyle(
-              color: THEME_COLOR,
+              color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
               fontSize: TEXT_REGULAR,
               fontWeight: FontWeight.w700,
             ),
@@ -258,7 +260,7 @@ class DoneButtonView extends StatelessWidget {
     return Container(
       width: DONE_BUTTON_WIDTH,
       height: DONE_BTN_HEIGHT,
-      color: THEME_COLOR,
+      color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
       child: TextButton(
         onPressed: () {
           this.onTappedDone();

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/config/environment_config.dart';
 import 'package:movie_booking_app/data/vos/cinema_day_timeslots_vo.dart';
 import 'package:movie_booking_app/pages/payment_page.dart';
 import 'package:movie_booking_app/pages/ticket_confirmation_page.dart';
@@ -6,6 +7,7 @@ import 'package:movie_booking_app/widgets/cancelation_policy_view.dart';
 import 'package:movie_booking_app/viewItems/food_item_ticket_price_view.dart';
 import 'package:movie_booking_app/widgets/corner_separator_view.dart';
 import 'package:movie_booking_app/widgets/design_button_view.dart';
+import '../config/config_values.dart';
 import '../data/vos/c_snack_vo.dart';
 import '../data/vos/cinema_vo.dart';
 import '../data/vos/date_vo.dart';
@@ -196,7 +198,7 @@ class TotalPriceView extends StatelessWidget {
           Text(
             "Total",
             style: TextStyle(
-              color: THEME_COLOR,
+              color: ConfigClass.themeColor,
               fontSize: TEXT_REGULAR_2X,
               fontWeight: FontWeight.w700,
             ),
@@ -205,7 +207,7 @@ class TotalPriceView extends StatelessWidget {
           Text(
             "${totalPrice}Ks",
             style: TextStyle(
-                color: THEME_COLOR,
+                color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
                 fontSize: TEXT_REGULAR,
                 fontWeight: FontWeight.bold),
           ),
@@ -374,7 +376,7 @@ class ContinueButtonView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DesignButtonView("Continue", THEME_COLOR, ()=>onTappedContinue());
+    return DesignButtonView("Continue", THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR], ()=>onTappedContinue());
   }
 }
 
@@ -388,7 +390,7 @@ class CinemaTitleView extends StatelessWidget {
         Text(
           "${mCinema?.name}",
           style: TextStyle(
-            color: THEME_COLOR,
+            color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
             fontSize: TEXT_REGULAR_2X,
             fontWeight: FontWeight.w700,
           ),

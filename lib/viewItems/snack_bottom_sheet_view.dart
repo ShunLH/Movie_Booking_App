@@ -3,6 +3,8 @@ import 'package:movie_booking_app/data/vos/snack_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import 'fnb_sub_total_price_view.dart';
 
 class SnackBottomSheetView extends StatefulWidget {
@@ -116,7 +118,7 @@ class ItemCountTextView extends StatelessWidget {
     return Text(
       "$count",
       style: TextStyle(
-        color: THEME_COLOR,
+        color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
         fontSize: TEXT_CARD_SMALL,
         fontWeight: FontWeight.bold,
       ),
@@ -172,7 +174,7 @@ class CirclePlusButtonView extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         alignment: Alignment.center,
         shape: CircleBorder(),
-        primary: THEME_COLOR, // <-- Button color
+        primary: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR], // <-- Button color
         onPrimary: PRIMARY_COLOR, // <-- Splash color
       ),
       onPressed: () => this.onTappedPlus(),
@@ -190,7 +192,7 @@ class CircleMinusButtonView extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         alignment: Alignment.center,
         shape: CircleBorder(),
-        primary: THEME_COLOR, // <-- Button color
+        primary: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR], // <-- Button color
         onPrimary: PRIMARY_COLOR, // <-- Splash color
       ),
       onPressed: () => this.onTappedRemove(),

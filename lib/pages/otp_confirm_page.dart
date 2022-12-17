@@ -6,6 +6,8 @@ import 'package:movie_booking_app/data/models/movie_model_impl.dart';
 import 'package:movie_booking_app/pages/pick_region_page.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../resources/colors.dart';
 import '../resources/dimens.dart';
 
@@ -177,7 +179,7 @@ class ConfirmOTPButtonView extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       height: BOOKING_BTN_HEIGHT,
       decoration: BoxDecoration(
-        color: THEME_COLOR,
+        color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
         borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
       ),
       child: TextButton(

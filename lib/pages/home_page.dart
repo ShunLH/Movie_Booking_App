@@ -4,16 +4,18 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:movie_booking_app/config/environment_config.dart';
 import 'package:movie_booking_app/data/models/data_repository.dart';
 import 'package:movie_booking_app/data/models/movie_model.dart';
 import 'package:movie_booking_app/data/models/movie_model_impl.dart';
 import 'package:movie_booking_app/data/vos/banner_vo.dart';
-import 'package:movie_booking_app/data/vos/cinema_timeslot_status_vo.dart';
 import 'package:movie_booking_app/data/vos/movie_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
+import 'package:movie_booking_app/widgets/horizontal_banner_view.dart';
 
+import '../config/config_values.dart';
 import '../viewItems/banner_view.dart';
 import '../viewItems/movie_view.dart';
 import 'movie_detail_page.dart';
@@ -134,6 +136,7 @@ class _BannerSectionViewState extends State<BannerSectionView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        (EnvironmentConfig.CONFIG_BANNER_CAROUSEL == true) ?
         CarouselSlider.builder(
           options: CarouselOptions(
             autoPlay: false,
@@ -147,7 +150,12 @@ class _BannerSectionViewState extends State<BannerSectionView> {
               Container(
                 child: (this.widget.mBannersList != null) ? BannerView(this.widget.mBannersList?[itemIndex]) : Container(),
               ),
-        ),
+        ) :
+        HorizontalBannerView(this.widget.mBannersList,onTapBannerView: (index){
+          setState(() {
+            _position = index.toDouble();
+          });
+        }),
         SizedBox(
           height: MARGIN_MEDIUM,
         ),
@@ -156,7 +164,7 @@ class _BannerSectionViewState extends State<BannerSectionView> {
           position: _position,
           decorator: DotsDecorator(
             color: HOME_SCREEN_BANNER_DOTS_INACTIVE_COLOR,
-            activeColor: THEME_COLOR,
+            activeColor: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
           ),
         ),
       ],
@@ -286,7 +294,7 @@ class TabItemView extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         height: 40,
         decoration: BoxDecoration(
-            color: isSelected == true ? THEME_COLOR : Colors.transparent,
+            color: isSelected == true ? THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR] : Colors.transparent,
             borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
         // padding: EdgeInsets.all(MARGIN_MEDIUM),
         child: Align(

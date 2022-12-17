@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
+
 const PRIMARY_COLOR = Color.fromRGBO(17, 17, 17, 1.0);
-const THEME_COLOR = Color.fromRGBO(5, 255, 107, 1.0);
+// const THEME_COLOR = Color.fromRGBO(5, 255, 107, 1.0);
 const STATUS_SECTION_COLOR = Color.fromRGBO(34, 34, 34, 1.0);
 const MOVIE_TIME_BG_COLOR = Color.fromRGBO(25, 25, 25, 1.0);
 const MOVIE_TIME_GREEN_BORDER_COLOR = Color.fromRGBO(2, 82, 53, 1.0);
@@ -18,4 +21,14 @@ Color colorFromHex(String hexColor) {
   final hexCode = hexColor.replaceAll('#', '');
   return Color(int.parse('FF$hexCode', radix: 16));
 }
+
+
+class ConfigClass {
+  static final themeColor = THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR];
+
+  static final layout = MOVIE_DETAILS_CASTS_LIST_LAYOUT[EnvironmentConfig.CONFIG_MOVIE_DETAIL_CASTS_LIST_LAYOUT];
+}
+
+
+
 

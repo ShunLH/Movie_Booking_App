@@ -8,6 +8,8 @@ import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../widgets/gradient_view.dart';
 import '../widgets/separator_line_view.dart';
 import '../widgets/title_text_view.dart';
@@ -49,7 +51,7 @@ class _PickRegionPageState extends State<PickRegionPage> {
         title: Text(
           PICK_REGION,
           style: TextStyle(
-              color: THEME_COLOR,
+              color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
               fontSize: TEXT_REGULAR_2X,
               fontWeight: FontWeight.bold),
         ),
@@ -126,7 +128,7 @@ class LocationSearchBarView extends StatelessWidget {
                 horizontal: MARGIN_CARD_MEDIUM_1),
             child: Icon(
               Icons.search,
-              color: THEME_COLOR,
+              color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
               size: ICON_MEDIUM_SIZE,
             ),
           ),

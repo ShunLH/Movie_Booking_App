@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:movie_booking_app/data/vos/movie_vo.dart';
 import 'package:movie_booking_app/network/api_constants.dart';
 import 'package:movie_booking_app/resources/colors.dart';
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../resources/dimens.dart';
 import '../widgets/gradient_view.dart';
 
@@ -159,7 +161,7 @@ class CommingDateView extends StatelessWidget {
       width: COMMING_SOON_MOVIE_DATE_VIEW_SIZE,
       height: COMMING_SOON_MOVIE_DATE_VIEW_SIZE,
       decoration: BoxDecoration(
-        color: THEME_COLOR,
+        color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
         borderRadius: BorderRadius.all(Radius.circular(MARGIN_XSMALL)),
       ),
       child: Center(

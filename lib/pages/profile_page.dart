@@ -3,6 +3,8 @@ import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/dummy.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../viewItems/profile_menu_item_view.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -92,13 +94,13 @@ class LoginButtonView extends StatelessWidget {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
             border: Border.all(
-                color: THEME_COLOR, width: 1.0, style: BorderStyle.solid)),
+                color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR], width: 1.0, style: BorderStyle.solid)),
         child: TextButton(
           onPressed: () => {},
           child: Text(
             "Login or Sign Up",
             style: TextStyle(
-                color: THEME_COLOR,
+                color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
                 fontWeight: FontWeight.bold,
                 fontSize: TEXT_REGULAR),
           ),

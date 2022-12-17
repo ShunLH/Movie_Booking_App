@@ -15,6 +15,8 @@ import 'package:movie_booking_app/widgets/image_icon_view.dart';
 import 'package:movie_booking_app/viewItems/payment_type_view.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../data/vos/movie_vo.dart';
 import '../data/vos/snack_vo.dart';
 
@@ -103,7 +105,7 @@ class _PaymentPageState extends State<PaymentPage> {
             Text(
               CHOOSE_PAYMENT_TYPE,
               style: TextStyle(
-                color: THEME_COLOR,
+                color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
                 fontSize: TEXT_REGULAR_2X,
                 fontWeight: FontWeight.bold,
               ),
@@ -189,7 +191,7 @@ class ApplyPromoCodeView extends StatelessWidget {
         width: MediaQuery.of(context).size.width * 0.8,
         height: 50,
         decoration: BoxDecoration(
-          color: THEME_COLOR,
+          color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
           borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
         ),
         child: Padding(
@@ -226,14 +228,14 @@ class NameTextFieldView extends StatelessWidget {
         decoration: InputDecoration(
           enabled: true,
           border: OutlineInputBorder(
-              borderSide: BorderSide(color: THEME_COLOR, width: 1)),
+              borderSide: BorderSide(color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR], width: 1)),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(4)),
-            borderSide: BorderSide(width: 1, color: THEME_COLOR),
+            borderSide: BorderSide(width: 1, color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR]),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(4)),
-            borderSide: BorderSide(width: 1, color: THEME_COLOR),
+            borderSide: BorderSide(width: 1, color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR]),
           ),
           labelText: "Your Name",
           floatingLabelAlignment: FloatingLabelAlignment.start,
@@ -244,7 +246,7 @@ class NameTextFieldView extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
           labelStyle: TextStyle(
-            color: THEME_COLOR,
+            color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
             fontSize: TEXT_REGULAR,
             fontWeight: FontWeight.w600,
           ),

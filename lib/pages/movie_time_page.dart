@@ -15,6 +15,8 @@ import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 import 'package:movie_booking_app/widgets/title_text_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../data/vos/movie_date_vo.dart';
 import '../data/vos/movie_vo.dart';
 import '../resources/dummy.dart';
@@ -449,7 +451,7 @@ class CinemaChipView extends StatelessWidget {
     return Row(
       children: [
         Chip(
-          shadowColor: THEME_COLOR,
+          shadowColor: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL))),
           backgroundColor: Colors.black38,

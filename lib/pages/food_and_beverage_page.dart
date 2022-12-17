@@ -13,6 +13,8 @@ import 'package:movie_booking_app/viewItems/fnb_sub_total_price_view.dart';
 import 'package:movie_booking_app/viewItems/food_item_view.dart';
 import 'package:movie_booking_app/viewItems/snack_bottom_sheet_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../data/vos/cinema_day_timeslots_vo.dart';
 import '../data/vos/date_vo.dart';
 import '../data/vos/movie_vo.dart';
@@ -254,7 +256,7 @@ class SnacksTabBarView extends StatelessWidget {
           color: Colors.white10,
           child: TabBar(
             labelColor: Colors.white,
-            indicatorColor: THEME_COLOR,
+            indicatorColor: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
             indicatorSize: TabBarIndicatorSize.tab,
             onTap: (index) {
               this.onTapCategory(_categoriesList[index].id ?? 0);

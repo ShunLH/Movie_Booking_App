@@ -37,4 +37,9 @@ class SnackDao{
   Stream<List<SnackVO>> getAllSnacksStream(){
     return Stream.value(getAllSnacks());
   }
+
+  Stream<List<SnackVO>> getAllSnacksByIdStream(int categoryId){
+    return Stream.value(getSnacksByCategoryId(categoryId));
+  }
+
 }

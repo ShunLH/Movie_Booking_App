@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../resources/colors.dart';
 import '../resources/dimens.dart';
 
@@ -16,7 +18,7 @@ class FnBBottomTotalPriceButtonView extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         height: 50,
         decoration: BoxDecoration(
-            color: THEME_COLOR,
+            color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
             borderRadius: BorderRadius.all(
               Radius.circular(MARGIN_CARD_MEDIUM_1),
             )),

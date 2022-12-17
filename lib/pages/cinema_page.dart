@@ -7,6 +7,8 @@ import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/viewItems/facility_item_view.dart';
 import 'package:movie_booking_app/widgets/filter_type_view.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../widgets/cinema_title_view.dart';
 import '../widgets/title_text_view.dart';
 
@@ -134,7 +136,7 @@ class PriceRangeSliderView extends StatelessWidget {
         ),
         RangeSlider(
             values: _priceRangeValues,
-            activeColor: THEME_COLOR,
+            activeColor: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
             inactiveColor: Colors.grey,
             divisions: 10,
             labels: RangeLabels(
@@ -171,7 +173,7 @@ class ShowTimeRangeSliderView extends StatelessWidget {
         ),
         RangeSlider(
             values: _timeRangeValues,
-            activeColor: THEME_COLOR,
+            activeColor: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
             divisions: 16,
             inactiveColor: Colors.grey,
             labels: RangeLabels(

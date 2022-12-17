@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:movie_booking_app/data/models/data_repository.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../data/vos/ticket_vo.dart';
 import '../resources/colors.dart';
 
@@ -50,7 +52,7 @@ class DateTimeIconView extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: THEME_COLOR,
+            color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
             size: MARGIN_LARGE,
           ),
           SizedBox(

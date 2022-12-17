@@ -5,6 +5,8 @@ import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import 'otp_confirm_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -173,7 +175,7 @@ class VerifyYourAccountButtonView extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       height: BOOKING_BTN_HEIGHT,
       decoration: BoxDecoration(
-        color: THEME_COLOR,
+        color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
         borderRadius: BorderRadius.all(Radius.circular(MARGIN_SMALL)),
       ),
       child: TextButton(

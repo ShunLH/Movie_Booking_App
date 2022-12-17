@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 
+import '../config/config_values.dart';
+import '../config/environment_config.dart';
 import '../data/vos/snack_vo.dart';
 import '../resources/dimens.dart';
 
@@ -22,7 +24,7 @@ class FoodItemTicketPriceView extends StatelessWidget {
         onTap: () => this.onTappedDelete(mSnack?.id ?? 0),
         child: Icon(
           Icons.delete_forever,
-          color: THEME_COLOR,
+          color: THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR],
           size: ICON_MEDIUM_SIZE,
         ),
       ),
